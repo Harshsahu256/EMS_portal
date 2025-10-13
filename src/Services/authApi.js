@@ -495,3 +495,14 @@ export const getCompanyById = async (companyId) => {
     return { success: false, message: err.response?.data?.message || "Failed to fetch company details by ID." };
   }
 };
+
+
+export const getCompanyProfile = async () => {
+  try {
+    const response = await axios.get(API_END_POINT.GET_MY_COMPANY_PROFILE, getAuthHeaders());
+    return response.data;
+  } catch (error) {
+    console.error("Error in fetching company profile:", error.response?.data || error.message);
+    throw error; // Throw the error object directly for better error handling in frontend
+  }
+};

@@ -447,7 +447,7 @@ const Manoranjan = () => {
 
   const mainArticle = newsData[0];
   const bottomArticle = newsData[1];
-  const sideArticles = newsData.slice(2, 6);
+  const sideArticles = newsData.slice(2, 8);
 
   const linkStyle = { textDecoration: "none", color: "inherit" };
   const accentColor = "#A12D2A";

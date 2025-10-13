@@ -115,6 +115,8 @@ GET_COMPANIES_BY_CATEGORY: (categoryId) => `${API_BASE_URL}/getCompaniesByCatego
 GET_COMPANY_BY_ID: (id) => `${API_BASE_URL}/company/${id}`,
 
 
+GET_MY_COMPANY_PROFILE: `${API_BASE_URL}/my-company-profile`,
+
 };
 
  

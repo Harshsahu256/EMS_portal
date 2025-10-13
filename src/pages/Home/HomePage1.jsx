@@ -393,6 +393,7 @@ import AllWebStoriesPage from "../../webStory/AllWebStoriesPage";
 import AllShortsPage from "../../components/NewsDetails/AllShortsPage";
 import CategoryDetailPage from "../../Directory/CategoryDetailPage";
 import CompanyDetailPage from "../../Directory/CompanyDetailPage";
+import Profile from "../../components/MainArtical/Profile.jsx";
 
 
 const HEADER_HEIGHT = 155; // px
@@ -482,6 +483,7 @@ const HomePage1 = () => {
           <Route path="/CategoryDetailPage" element={< CategoryDetailPage />} />
           <Route path="/login" element={<Form />} />
                <Route path="/company/:companyId" element={<CompanyDetailPage />} />
+               <Route path="/profile" element={<Profile />} /> 
    
 
           <Route element={<LayoutWithRightSidebarOnly />}>
@@ -505,6 +507,7 @@ const HomePage1 = () => {
             <Route path="/web-stories" element={<WebStorySection />} />
             <Route path="/all-webstories" element={<AllWebStoriesPage />} />
             <Route path="/youth" element={<YouthPage />} />
+             
           
               
           </Route>
