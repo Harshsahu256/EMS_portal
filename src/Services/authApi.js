@@ -506,3 +506,34 @@ export const getCompanyProfile = async () => {
     throw error; // Throw the error object directly for better error handling in frontend
   }
 };
+
+// export const requestCompanyUpdate = async (updateData) => {
+//   try {
+//     const response = await axios.put(
+//       API_END_POINT.REQUEST_COMPANY_UPDATE,
+//       updateData,
+//       getAuthConfig()
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error in requestCompanyUpdate:", error);
+//     throw error.response?.data || error;
+//   }
+// };
+ 
+
+
+
+export const requestCompanyUpdate = async (updateData) => {
+  try {
+    const response = await axios.put(
+      API_END_POINT.REQUEST_COMPANY_UPDATE,
+      updateData,
+      getAuthHeaders() // <-- यहाँ `getAuthConfig()` को `getAuthHeaders()` से बदल दिया गया है
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in requestCompanyUpdate:", error);
+    throw error.response?.data || error;
+  }
+};

@@ -2051,7 +2051,7 @@ const Header = () => {
               onClick={() => changeAppLanguage("hi")}
               style={{ textDecoration: currentLanguage === "hi" ? "underline" : "none" }}
             >
-              Hindi
+              हिंदी
             </Button>
             <Button
               variant="link"

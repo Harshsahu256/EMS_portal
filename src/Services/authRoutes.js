@@ -117,6 +117,7 @@ GET_COMPANY_BY_ID: (id) => `${API_BASE_URL}/company/${id}`,
 
 GET_MY_COMPANY_PROFILE: `${API_BASE_URL}/my-company-profile`,
 
+REQUEST_COMPANY_UPDATE: `${API_BASE_URL}/update-request`,
 };
 
  

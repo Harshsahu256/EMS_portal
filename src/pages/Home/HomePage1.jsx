@@ -393,7 +393,7 @@ import AllWebStoriesPage from "../../webStory/AllWebStoriesPage";
 import AllShortsPage from "../../components/NewsDetails/AllShortsPage";
 import CategoryDetailPage from "../../Directory/CategoryDetailPage";
 import CompanyDetailPage from "../../Directory/CompanyDetailPage";
-import Profile from "../../components/MainArtical/Profile.jsx";
+import Profile from '../../Directory/Profile.jsx'
 
 
 const HEADER_HEIGHT = 155; // px

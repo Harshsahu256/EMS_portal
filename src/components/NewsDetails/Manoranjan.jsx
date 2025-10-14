@@ -499,7 +499,7 @@ const Manoranjan = () => {
                 fluid
                 rounded
                 className="w-100"
-                style={{ objectFit: "cover", maxHeight: "400px", height: "300px" }}
+                style={{ objectFit: "cover", maxHeight: "500px", height: "300px" }}
               />
               <div
                 className="position-absolute bottom-0 start-0 text-white w-100 p-3"

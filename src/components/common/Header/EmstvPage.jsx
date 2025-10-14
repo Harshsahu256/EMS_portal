@@ -631,8 +631,8 @@ const VideoCard = ({ thumbnail, onClick, title }) => (
 
     {/* Title below card */}
     <p
-      className="mt-2 mb-0 fw-bold text-truncate text-center"
-      style={{ color: "red", fontSize: "0.95rem" }} // Inline styles kept for specific color and font size
+      className="mt-2 mb-0 fw-bold text-truncate "
+      style={{ color: "red", fontSize: "0.95rem",textAlign: "left" }} // Inline styles kept for specific color and font size
       title={title} // hover pe full title
     >
       {title}

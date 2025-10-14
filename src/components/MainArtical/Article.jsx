@@ -18,7 +18,7 @@ const SocialButton = ({ icon, count, bgColor, iconColor = "white" }) => (
       style={{
         backgroundColor: bgColor,
         color: iconColor,
-        width: "24px",
+        width: "24px",          
         height: "24px",
         borderRadius: "3px",
       }}

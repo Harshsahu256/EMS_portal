@@ -36,7 +36,7 @@ const VideoDetail = () => {
     <div className="mb-4">
       {/* Current Video */}
       <div className="mb-4 text-start b">
-        <h2 className="mb-3 fw-bold text-danger text-center">{currentVideo.title}</h2>
+        <h2 className="mb-3 fw-bold text-danger text-left">{currentVideo.title}</h2>
         <iframe
           width="100%"
           height="400"
