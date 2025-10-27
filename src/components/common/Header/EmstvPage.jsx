@@ -311,283 +311,9 @@
 // export default EmstvPage;
 
 
-// import React, { useState, useEffect } from "react";
-// import { Container, Row, Col, Spinner, Image, Button, Dropdown } from "react-bootstrap";
-// import { FaPlayCircle } from "react-icons/fa";
-// import { getVideo } from "../../../Services/authApi";
-// import { useNavigate } from "react-router-dom";
-
-// // VideoCard कॉम्पोनेंट में कोई बदलाव नहीं
-// const VideoCard = ({ thumbnail, onClick, title }) => (
-//   <div className="mb-3">
-//     {/* Card with cropped image */}
-//     <div
-//       className="position-relative shadow-sm video-card"
-//       onClick={onClick}
-//       style={{
-//         cursor: "pointer",
-//         overflow: "hidden", // crop top/bottom
-//         transition: "transform 0.2s ease-in-out",
-//         backgroundColor: "#000",
-//         height: "180px", // card height
-//       }}
-//     >
-//       <Image
-//         src={thumbnail}
-//         alt={title}
-//         fluid
-//         style={{
-//           width: "100%",
-//           height: "100%",
-//           objectFit: "cover",
-//           objectPosition: "center",
-//           filter: "brightness(85%)",
-//         }}
-//       />
-//       <FaPlayCircle
-//         color="#ffffff"
-//         size={36}
-//         className="position-absolute top-50 start-50 translate-middle"
-//         style={{
-//           opacity: 0.9,
-//           filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))",
-//         }}
-//       />
-//     </div>
-
-//     {/* Title below card */}
-//     <p
-//       className="mt-2 mb-0 fw-bold text-truncate text-center"
-//       style={{ color: "red", fontSize: "0.95rem" }}
-//       title={title} // hover pe full title
-//     >
-//       {title}
-//     </p>
-//   </div>
-// );
-
-
-// const EmstvPage = () => {
-//   const [videos, setVideos] = useState([]);
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [selectedCategory, setSelectedCategory] = useState("All");
-//   const [screenWidth, setScreenWidth] = useState(window.innerWidth); // ✅ Track screen width
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     window.scrollTo(0, 0); // Scroll to top when component mounts
-//     getVideo()
-//       .then((res) => {
-//         const data = res?.data || [];
-//         setVideos(data);
-//       })
-//       .catch((err) => {
-//         setError("Failed to load videos");
-//         console.error(err);
-//       })
-//       .finally(() => setIsLoading(false));
-
-//     // ✅ Event listener for window resize to update screenWidth
-//     const handleResize = () => {
-//       setScreenWidth(window.innerWidth);
-//     };
-
-//     window.addEventListener("resize", handleResize);
-//     handleResize(); // Initial check
-
-//     return () => {
-//       window.removeEventListener("resize", handleResize);
-//     };
-//   }, []);
-
-//   // Unique categories निकालो
-//   const allCategories = ["All", ...new Set(videos.map((v) => v.category_name))];
-
-//   // ✅ Dynamically determine max visible categories based on screen width
-//   const getMaxVisibleCategories = (width) => {
-//     if (width <= 480) { // Very small devices (e.g., small phones)
-//       return 2;
-//     } else if (width <= 768) { // Small devices (phones, small tablets)
-//       return 3;
-//     } else if (width <= 992) { // Medium devices (tablets, small laptops)
-//       return 4;
-//     } else { // Large devices (desktops)
-//       return allCategories.length; // Show all
-//     }
-//   };
-
-//   const maxVisibleCategories = getMaxVisibleCategories(screenWidth);
-
-//   // ✅ कैटेगरी को स्क्रीन साइज़ के अनुसार मैनेज करें
-//   let visibleCategories = allCategories;
-//   let hiddenCategories = [];
-
-//   if (allCategories.length > maxVisibleCategories) {
-//     visibleCategories = allCategories.slice(0, maxVisibleCategories);
-//     hiddenCategories = allCategories.slice(maxVisibleCategories);
-//   }
-
-//   // Selected category की videos
-//   const filteredVideos =
-//     selectedCategory === "All"
-//       ? videos
-//       : videos.filter((v) => v.category_name === selectedCategory);
-
-//   const getThumbnailUrl = (url) => {
-//     if (!url) return "";
-//     let videoId = "";
-//     if (url.includes("youtu.be")) videoId = url.split("/").pop().split("?")[0];
-//     else if (url.includes("youtube.com/watch"))
-//       videoId = new URL(url).searchParams.get("v");
-//     return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
-//   };
-
-//   if (isLoading)
-//     return (
-//       <div className="text-center my-4">
-//         <Spinner animation="border" size="sm" />
-//       </div>
-//     );
-//   if (error) return <div className="text-center text-danger my-4">{error}</div>;
-
-//   return (
-//     <Container className="mt-4">
-//       {/* EMS TV Heading */}
-//       <div className="d-flex align-items-center mb-3 flex-wrap">
-//         <div className="d-flex align-items-center flex-shrink-0 mb-2 mb-sm-0">
-//           <div
-//             style={{ width: "7px", height: "35px", backgroundColor: "#C00000" }}
-//             className="me-2"
-//           ></div>
-//           <h2 className="fw-bold m-0">EMS TV</h2>
-//         </div>
-//         <hr className="flex-grow-1 mx-2 mx-sm-3 border-danger border-2 opacity-100 my-0" />
-//       </div>
-
-//       {/* Categories Tabs */}
-//       <div className="d-flex flex-wrap gap-2 mb-3">
-//         {/* Visible Categories */}
-//         {visibleCategories.map((cat) => (
-//           <Button
-//             key={cat}
-//             variant={selectedCategory === cat ? "danger" : "outline-danger"}
-//             size="sm"
-//             onClick={() => setSelectedCategory(cat)}
-//           >
-//             {cat}
-//           </Button>
-//         ))}
-
-//         {/* More Button with Dropdown for hidden categories */}
-//         {hiddenCategories.length > 0 && (
-//           <Dropdown>
-//             <Dropdown.Toggle
-//               variant={selectedCategory && hiddenCategories.includes(selectedCategory) ? "danger" : "outline-danger"}
-//               size="sm"
-//               id="dropdown-basic"
-//               className="ems-dropdown-toggle"
-//             >
-//               More
-//             </Dropdown.Toggle>
-
-//             <Dropdown.Menu className="ems-dropdown-menu-custom"> {/* ✅ नया क्लास जोड़ा */}
-//               {hiddenCategories.map((cat) => (
-//                 <Dropdown.Item
-//                   key={cat}
-//                   onClick={() => setSelectedCategory(cat)}
-//                   active={selectedCategory === cat}
-//                   className="ems-dropdown-item-custom" // ✅ नया क्लास जोड़ा
-//                 >
-//                   {cat}
-//                 </Dropdown.Item>
-//               ))}
-//             </Dropdown.Menu>
-//           </Dropdown>
-//         )}
-//       </div>
-
-//       {/* Videos Grid */}
-//       <Row className="g-3">
-//         {filteredVideos.map((video) => (
-//           <Col key={video._id} xs={12} sm={6} md={4} lg={3}>
-//             <VideoCard
-//               thumbnail={getThumbnailUrl(video.videoUrl)}
-//               title={video.title}
-//               onClick={() => {
-//                 navigate(`/video/${video._id}`, {
-//                   state: { videos, currentVideo: video },
-//                 });
-//                 window.scrollTo({ top: 0, behavior: "smooth" });
-//               }}
-//             />
-//           </Col>
-//         ))}
-//       </Row>
-
-//       {/* ✅ Custom CSS for Dropdown and mobile styling */}
-//       <style>{`
-//         /* Mobile specific video card styling */
-//         @media (max-width: 576px) {
-//           .video-card {
-//             margin-bottom: 15px;
-//           }
-//           .video-title {
-//             font-size: 14px;
-//             white-space: normal;
-//           }
-//         }
-
-//         /* Dropdown Menu Styling (No border, better look) */
-//         .ems-dropdown-menu-custom {
-//           border-radius: 0.5rem; /* Rounded corners */
-//           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
-//           border: none; /* ✅ बॉर्डर हटा दिया */
-//           min-width: 120px; /* Minimum width for the dropdown */
-//           padding: 0.5rem 0; /* Padding inside the dropdown */
-//         }
-
-//         /* Dropdown Item Styling */
-//         .ems-dropdown-item-custom {
-//           color: #212529; /* Default text color */
-//           font-weight: 500;
-//           padding: 0.6rem 1rem; /* Slightly more padding for better touch target */
-//           transition: background-color 0.2s ease, color 0.2s ease;
-//         }
-
-//         .ems-dropdown-item-custom:hover,
-//         .ems-dropdown-item-custom:focus {
-//           background-color: #f8d7da; /* ✅ लाइट रेड बैकग्राउंड ऑन होवर */
-//           color: #dc3545; /* ✅ रेड टेक्स्ट कलर ऑन होवर */
-//         }
-
-//         /* Active Dropdown Item Styling */
-//         .ems-dropdown-item-custom.active,
-//         .ems-dropdown-item-custom:active {
-//           background-color: #dc3545 !important; /* ✅ रेड बैकग्राउंड फॉर एक्टिव आइटम */
-//           color: #fff !important; /* ✅ व्हाइट टेक्स्ट फॉर एक्टिव आइटम */
-//           font-weight: bold;
-//         }
-
-//         /* Dropdown Toggle Button Styling (Optional: if you want more specific styling than Bootstrap's default) */
-//         .ems-dropdown-toggle {
-//           height: 31px; /* Adjust height to match other sm buttons if needed */
-//           display: flex;
-//           align-items: center;
-//           justify-content: center;
-//         }
-//       `}</style>
-//     </Container>
-//   );
-// };
-
-// export default EmstvPage;
-
-
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Spinner, Image, Button, Dropdown } from "react-bootstrap";
-// Updated icons imported: FaThumbsUp (for likes), FaCommentDots (for comments), FaShareAlt (for share)
-import { FaPlayCircle, FaThumbsUp, FaCommentDots, FaShareAlt } from "react-icons/fa";
+import { FaPlayCircle } from "react-icons/fa";
 import { getVideo } from "../../../Services/authApi";
 import { useNavigate } from "react-router-dom";
 
@@ -596,14 +322,14 @@ const VideoCard = ({ thumbnail, onClick, title }) => (
   <div className="mb-3">
     {/* Card with cropped image */}
     <div
-      className="position-relative shadow-sm"
+      className="position-relative shadow-sm video-card"
       onClick={onClick}
       style={{
         cursor: "pointer",
         overflow: "hidden", // crop top/bottom
         transition: "transform 0.2s ease-in-out",
         backgroundColor: "#000",
-        height: "180px", // card height - kept inline as it's a fixed size
+        height: "180px", // card height
       }}
     >
       <Image
@@ -631,8 +357,8 @@ const VideoCard = ({ thumbnail, onClick, title }) => (
 
     {/* Title below card */}
     <p
-      className="mt-2 mb-0 fw-bold text-truncate "
-      style={{ color: "red", fontSize: "0.95rem",textAlign: "left" }} // Inline styles kept for specific color and font size
+      className="mt-2 mb-0 fw-bold text-truncate text-center"
+      style={{ color: "red", fontSize: "0.95rem" }}
       title={title} // hover pe full title
     >
       {title}
@@ -640,12 +366,13 @@ const VideoCard = ({ thumbnail, onClick, title }) => (
   </div>
 );
 
+
 const EmstvPage = () => {
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth); // ✅ Track screen width
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -661,7 +388,7 @@ const EmstvPage = () => {
       })
       .finally(() => setIsLoading(false));
 
-    // Event listener for window resize to update screenWidth
+    // ✅ Event listener for window resize to update screenWidth
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
     };
@@ -677,7 +404,7 @@ const EmstvPage = () => {
   // Unique categories निकालो
   const allCategories = ["All", ...new Set(videos.map((v) => v.category_name))];
 
-  // Dynamically determine max visible categories based on screen width
+  // ✅ Dynamically determine max visible categories based on screen width
   const getMaxVisibleCategories = (width) => {
     if (width <= 480) { // Very small devices (e.g., small phones)
       return 2;
@@ -692,7 +419,7 @@ const EmstvPage = () => {
 
   const maxVisibleCategories = getMaxVisibleCategories(screenWidth);
 
-  // कैटेगरी को स्क्रीन साइज़ के अनुसार मैनेज करें
+  // ✅ कैटेगरी को स्क्रीन साइज़ के अनुसार मैनेज करें
   let visibleCategories = allCategories;
   let hiddenCategories = [];
 
@@ -714,30 +441,6 @@ const EmstvPage = () => {
     else if (url.includes("youtube.com/watch"))
       videoId = new URL(url).searchParams.get("v");
     return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
-  };
-
-  // Share functionality
-  const handleShare = async (title, videoUrl) => {
-    // Construct the full URL for the video page (assuming your video player page path is `/video/:id`)
-    // You might need to adjust this URL construction based on your actual routing.
-    const fullShareUrl = `${window.location.origin}/video/${videoUrl}`; // Using videoUrl as id for simplicity, adjust if your video ID is different
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: `Check out this video: ${title}`,
-          url: fullShareUrl, // Share the actual video page URL
-        });
-        console.log('Video shared successfully');
-      } catch (error) {
-        console.error('Error sharing video:', error);
-      }
-    } else {
-      // Fallback for browsers that do not support navigator.share
-      alert(`Please copy this link to share: ${fullShareUrl}`);
-      // You can also implement a custom share modal here if needed
-    }
   };
 
   if (isLoading)
@@ -783,17 +486,18 @@ const EmstvPage = () => {
               variant={selectedCategory && hiddenCategories.includes(selectedCategory) ? "danger" : "outline-danger"}
               size="sm"
               id="dropdown-basic"
+              className="ems-dropdown-toggle"
             >
               More
             </Dropdown.Toggle>
 
-            <Dropdown.Menu className="rounded shadow-sm border-0 py-1"> {/* Bootstrap utility classes used for styling */}
+            <Dropdown.Menu className="ems-dropdown-menu-custom"> {/* ✅ नया क्लास जोड़ा */}
               {hiddenCategories.map((cat) => (
                 <Dropdown.Item
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  // Bootstrap's 'active' class with 'bg-danger', 'text-white', 'fw-bold' for active state, 'fw-bold' for others
-                  className={selectedCategory === cat ? "active bg-danger text-white fw-bold" : "fw-bold"}
+                  active={selectedCategory === cat}
+                  className="ems-dropdown-item-custom" // ✅ नया क्लास जोड़ा
                 >
                   {cat}
                 </Dropdown.Item>
@@ -817,28 +521,348 @@ const EmstvPage = () => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             />
-            {/* Updated icons (Likes, Comments, Share) below the video title */}
-            <div className="d-flex justify-content-between w-100 mt-2"> {/* w-100 and justify-content-between for full width distribution */}
-              <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Likes" onClick={() => { /* Implement likes functionality */ }}>
-                <FaThumbsUp size={18} className="me-1" /> 0 {/* Example: Display 0 likes */}
-              </Button>
-              <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Comments" onClick={() => { /* Implement comments functionality */ }}>
-                <FaCommentDots size={18} className="me-1" /> 0 {/* Example: Display 0 comments */}
-              </Button>
-              <Button
-                variant="link"
-                className="text-dark px-2 py-1 text-decoration-none"
-                title="Share"
-                onClick={() => handleShare(video.title, video._id)} // Passing video ID for share URL
-              >
-                <FaShareAlt size={18} className="me-1" /> Share
-              </Button>
-            </div>
           </Col>
         ))}
       </Row>
+
+      {/* ✅ Custom CSS for Dropdown and mobile styling */}
+      <style>{`
+        /* Mobile specific video card styling */
+        @media (max-width: 576px) {
+          .video-card {
+            margin-bottom: 15px;
+          }
+          .video-title {
+            font-size: 14px;
+            white-space: normal;
+          }
+        }
+
+        /* Dropdown Menu Styling (No border, better look) */
+        .ems-dropdown-menu-custom {
+          border-radius: 0.5rem; /* Rounded corners */
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+          border: none; /* ✅ बॉर्डर हटा दिया */
+          min-width: 120px; /* Minimum width for the dropdown */
+          padding: 0.5rem 0; /* Padding inside the dropdown */
+        }
+
+        /* Dropdown Item Styling */
+        .ems-dropdown-item-custom {
+          color: #212529; /* Default text color */
+          font-weight: 500;
+          padding: 0.6rem 1rem; /* Slightly more padding for better touch target */
+          transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .ems-dropdown-item-custom:hover,
+        .ems-dropdown-item-custom:focus {
+          background-color: #f8d7da; /* ✅ लाइट रेड बैकग्राउंड ऑन होवर */
+          color: #dc3545; /* ✅ रेड टेक्स्ट कलर ऑन होवर */
+        }
+
+        /* Active Dropdown Item Styling */
+        .ems-dropdown-item-custom.active,
+        .ems-dropdown-item-custom:active {
+          background-color: #dc3545 !important; /* ✅ रेड बैकग्राउंड फॉर एक्टिव आइटम */
+          color: #fff !important; /* ✅ व्हाइट टेक्स्ट फॉर एक्टिव आइटम */
+          font-weight: bold;
+        }
+
+        /* Dropdown Toggle Button Styling (Optional: if you want more specific styling than Bootstrap's default) */
+        .ems-dropdown-toggle {
+          height: 31px; /* Adjust height to match other sm buttons if needed */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      `}</style>
     </Container>
   );
 };
 
 export default EmstvPage;
+
+
+// import React, { useState, useEffect } from "react";
+// import { Container, Row, Col, Spinner, Image, Button, Dropdown, Modal, Form, Alert, InputGroup } from "react-bootstrap";
+// // ✅ Step 1: नया Send आइकन इम्पोर्ट करें
+// import { FaPlayCircle, FaThumbsUp, FaCommentDots, FaShareAlt } from "react-icons/fa";
+// import { IoSend } from "react-icons/io5"; // यह नया आइकन है
+// import { getVideo, likeVideo, addCommentToVideo } from "../../../Services/authApi";
+// import { useNavigate } from "react-router-dom";
+
+// // VideoCard कॉम्पोनेंट में कोई बदलाव नहीं
+// const VideoCard = ({ thumbnail, onClick, title }) => (
+//   <div className="mb-3">
+//     <div
+//       className="position-relative shadow-sm"
+//       onClick={onClick}
+//       style={{ cursor: "pointer", overflow: "hidden", transition: "transform 0.2s ease-in-out", backgroundColor: "#000", height: "180px" }}
+//     >
+//       <Image
+//         src={thumbnail}
+//         alt={title}
+//         fluid
+//         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", filter: "brightness(85%)" }}
+//       />
+//       <FaPlayCircle
+//         color="#ffffff"
+//         size={36}
+//         className="position-absolute top-50 start-50 translate-middle"
+//         style={{ opacity: 0.9, filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))" }}
+//       />
+//     </div>
+//     <p className="mt-2 mb-0 fw-bold text-truncate" style={{ color: "red", fontSize: "0.95rem", textAlign: "left" }} title={title}>
+//       {title}
+//     </p>
+//   </div>
+// );
+
+// const EmstvPage = () => {
+//   const [videos, setVideos] = useState([]);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [selectedCategory, setSelectedCategory] = useState("All");
+//   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+//   const navigate = useNavigate();
+
+//   const [likedVideos, setLikedVideos] = useState(new Set());
+//   const [currentUserId, setCurrentUserId] = useState(null);
+
+//   const [showCommentModal, setShowCommentModal] = useState(false);
+//   const [currentVideoForComment, setCurrentVideoForComment] = useState(null);
+//   const [commentText, setCommentText] = useState("");
+//   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+//   const [commentError, setCommentError] = useState("");
+
+//   useEffect(() => {
+//     window.scrollTo(0, 0);
+
+//     const user = JSON.parse(localStorage.getItem('user'));
+//     if (user && user._id) {
+//         setCurrentUserId(user._id);
+//     }
+
+//     getVideo()
+//       .then((res) => {
+//         const fetchedVideos = res?.data || [];
+//         setVideos(fetchedVideos);
+//         if (user && user._id) {
+//             const userLikedVideos = new Set();
+//             fetchedVideos.forEach(video => {
+//                 if (video.likes.includes(user._id)) {
+//                     userLikedVideos.add(video._id);
+//                 }
+//             });
+//             setLikedVideos(userLikedVideos);
+//         }
+//       })
+//       .catch((err) => {
+//         setError("Failed to load videos");
+//         console.error(err);
+//       })
+//       .finally(() => setIsLoading(false));
+
+//     const handleResize = () => setScreenWidth(window.innerWidth);
+//     window.addEventListener("resize", handleResize);
+//     handleResize();
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+
+//   const handleLike = async (videoId) => {
+//     try {
+//       const response = await likeVideo(videoId);
+//       setVideos(prevVideos => 
+//         prevVideos.map(video => 
+//           video._id === videoId 
+//             ? { ...video, likes: Array(response.totalLikes).fill(null) } 
+//             : video
+//         )
+//       );
+//       const newLikedVideos = new Set(likedVideos);
+//       if (response.message.includes("unliked")) {
+//           newLikedVideos.delete(videoId);
+//       } else {
+//           newLikedVideos.add(videoId);
+//       }
+//       setLikedVideos(newLikedVideos);
+//     } catch (err) {
+//       if (String(err).includes("401") || String(err).includes("403")) {
+//         alert("Please log in to like videos.");
+//         navigate('/login');
+//       } else {
+//         alert("Failed to like video. Please try again.");
+//       }
+//       console.error("Like error:", err);
+//     }
+//   };
+
+//   const openCommentModal = (video) => {
+//     setCurrentVideoForComment(video);
+//     setShowCommentModal(true);
+//     setCommentText("");
+//     setCommentError("");
+//   };
+//   const closeCommentModal = () => setShowCommentModal(false);
+
+//   const handleCommentSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!commentText.trim()) return;
+    
+//     setIsSubmittingComment(true);
+//     setCommentError("");
+//     try {
+//       const response = await addCommentToVideo(currentVideoForComment._id, { text: commentText });
+//       setVideos(prevVideos => 
+//         prevVideos.map(video => 
+//           video._id === currentVideoForComment._id 
+//             ? { ...video, comments: response.comments } 
+//             : video
+//         )
+//       );
+//       setCurrentVideoForComment(prev => ({...prev, comments: response.comments}));
+//       setCommentText("");
+//     } catch (err) {
+//       if (String(err).includes("401")) {
+//         setCommentError("Please log in to comment.");
+//       } else {
+//         setCommentError("Failed to add comment. Please try again.");
+//       }
+//     } finally {
+//       setIsSubmittingComment(false);
+//     }
+//   };
+
+//   // ... (बाकी के फंक्शन्स वैसे ही रहेंगे)
+//   const allCategories = ["All", ...new Set(videos.map((v) => v.category_name))];
+//   const getMaxVisibleCategories = (width) => {
+//     if (width <= 480) return 2; if (width <= 768) return 3; if (width <= 992) return 4; return allCategories.length;
+//   };
+//   const maxVisibleCategories = getMaxVisibleCategories(screenWidth);
+//   let visibleCategories = allCategories.slice(0, maxVisibleCategories);
+//   let hiddenCategories = allCategories.slice(maxVisibleCategories);
+//   const filteredVideos = selectedCategory === "All" ? videos : videos.filter((v) => v.category_name === selectedCategory);
+//   const getThumbnailUrl = (url) => {
+//     if (!url) return ""; let videoId = ""; if (url.includes("youtu.be")) videoId = url.split("/").pop().split("?")[0]; else if (url.includes("youtube.com/watch")) videoId = new URL(url).searchParams.get("v"); return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
+//   };
+//   const handleShare = async (title, videoId) => {
+//     const fullShareUrl = `${window.location.origin}/video/${videoId}`; if (navigator.share) { try { await navigator.share({ title, text: `Check out this video: ${title}`, url: fullShareUrl }); } catch (error) { console.error('Error sharing:', error); } } else { alert(`Please copy this link to share: ${fullShareUrl}`); }
+//   };
+
+
+//   if (isLoading) return <div className="text-center my-4"><Spinner animation="border" size="sm" /></div>;
+//   if (error) return <div className="text-center text-danger my-4">{error}</div>;
+
+//   return (
+//     <Container className="mt-4">
+//       <div className="d-flex align-items-center mb-3 flex-wrap">
+//         <div className="d-flex align-items-center flex-shrink-0 mb-2 mb-sm-0">
+//           <div style={{ width: "7px", height: "35px", backgroundColor: "#C00000" }} className="me-2"></div>
+//           <h2 className="fw-bold m-0">EMS TV</h2>
+//         </div>
+//         <hr className="flex-grow-1 mx-2 mx-sm-3 border-danger border-2 opacity-100 my-0" />
+//       </div>
+
+//       <div className="d-flex flex-wrap gap-2 mb-3">
+//         {visibleCategories.map((cat) => (
+//           <Button key={cat} variant={selectedCategory === cat ? "danger" : "outline-danger"} size="sm" onClick={() => setSelectedCategory(cat)}>
+//             {cat}
+//           </Button>
+//         ))}
+//         {hiddenCategories.length > 0 && (
+//           <Dropdown>
+//             <Dropdown.Toggle variant={hiddenCategories.includes(selectedCategory) ? "danger" : "outline-danger"} size="sm">More</Dropdown.Toggle>
+//             <Dropdown.Menu className="rounded shadow-sm border-0 py-1">
+//               {hiddenCategories.map((cat) => (
+//                 <Dropdown.Item key={cat} onClick={() => setSelectedCategory(cat)} className={selectedCategory === cat ? "active bg-danger text-white fw-bold" : "fw-bold"}>
+//                   {cat}
+//                 </Dropdown.Item>
+//               ))}
+//             </Dropdown.Menu>
+//           </Dropdown>
+//         )}
+//       </div>
+
+//       <Row className="g-3">
+//         {filteredVideos.map((video) => (
+//           <Col key={video._id} xs={12} sm={6} md={4} lg={3}>
+//             <VideoCard
+//               thumbnail={getThumbnailUrl(video.videoUrl)}
+//               title={video.title}
+//               onClick={() => {
+//                 navigate(`/video/${video._id}`, { state: { videos, currentVideo: video } });
+//                 window.scrollTo({ top: 0, behavior: "smooth" });
+//               }}
+//             />
+//             <div className="d-flex justify-content-between w-100 mt-2">
+//               <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Likes" onClick={() => handleLike(video._id)}>
+//                 <FaThumbsUp size={18} className="me-1" style={{ color: likedVideos.has(video._id) ? 'red' : 'inherit' }} /> 
+//                 {video.likes?.length || 0}
+//               </Button>
+//               <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Comments" onClick={() => openCommentModal(video)}>
+//                 <FaCommentDots size={18} className="me-1" /> {video.comments?.length || 0}
+//               </Button>
+//               <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Share" onClick={() => handleShare(video.title, video._id)}>
+//                 <FaShareAlt size={18} className="me-1 text-primary" /> Share
+//               </Button>
+//             </div>
+//           </Col>
+//         ))}
+//       </Row>
+
+//       {/* ✅ Step 2: Modal का पूरा डिज़ाइन बदल दिया गया है */}
+//       <Modal show={showCommentModal} onHide={closeCommentModal} centered>
+//         <Modal.Header closeButton>
+//           <Modal.Title>Comments</Modal.Title>
+//         </Modal.Header>
+//         <Modal.Body>
+//           {/* पुराने कमेंट्स दिखाने का सेक्शन */}
+//           <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+//             {currentVideoForComment?.comments?.length > 0 ? (
+//               currentVideoForComment.comments.map(comment => (
+//                 <div key={comment._id} className="mb-3 d-flex align-items-start">
+//                     {/* Optional: User profile image */}
+//                     {/* <Image src={comment.user?.profileImage || 'https://via.placeholder.com/40'} roundedCircle width={40} height={40} className="me-3" /> */}
+//                     <div>
+//                         <p className="mb-0"><strong>{comment.user?.username || 'User'}</strong></p>
+//                         <p className="mb-0 text-muted">{comment.text}</p>
+//                     </div>
+//                 </div>
+//               ))
+//             ) : (
+//               <p className="text-muted text-center my-4">No comments yet.</p>
+//             )}
+//           </div>
+//         </Modal.Body>
+//         {/* Modal Footer को हटाकर, फॉर्म को Modal के निचले हिस्से में रखा गया है */}
+//         <div className="p-2 border-top">
+//             {commentError && <Alert variant="danger" size="sm" className="mx-2">{commentError}</Alert>}
+//             <Form onSubmit={handleCommentSubmit}>
+//                 <InputGroup>
+//                     <Form.Control
+//                         as="textarea"
+//                         rows={1}
+//                         value={commentText}
+//                         onChange={(e) => setCommentText(e.target.value)}
+//                         placeholder="Add a comment..."
+//                         required
+//                         className="border-0"
+//                         style={{ resize: 'none' }}
+//                     />
+//                     <Button variant="link" type="submit" disabled={isSubmittingComment} className="p-2">
+//                         {isSubmittingComment 
+//                             ? <Spinner animation="border" size="sm" /> 
+//                             : <IoSend size={24} color="#007bff" />
+//                         }
+//                     </Button>
+//                 </InputGroup>
+//             </Form>
+//         </div>
+//       </Modal>
+
+//     </Container>
+//   );
+// };
+
+// export default EmstvPage;

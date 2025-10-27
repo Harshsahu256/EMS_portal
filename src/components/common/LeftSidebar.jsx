@@ -587,6 +587,7 @@ import appStoreImage from '../../assets/appstore.png';
 import { FiHome, FiFlag, FiFilm, FiStar, FiAward, FiZap, FiBriefcase, FiUser, FiFolder } from "react-icons/fi";
 import { FaLandmark, FaFacebookF, FaYoutube, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 const NavItem = ({ to, Icon, text, onClick }) => (
   <NavLink
@@ -817,8 +818,36 @@ const LeftSidebar = ({ isOpen, onClose, states = [] }) => {
         {/* Footer Options */}
         <div className="mt-3">
           <h6 className="fw-bold mb-2">About EMS</h6>
+
+
+
           <a href="#" className="d-block mb-1 text-dark text-decoration-none" onClick={onClose}>About Us</a>
+                 {/* <Link 
+    to="/about-us" 
+    className="d-block mb-1 text-dark text-decoration-none"
+    onClick={onClose} // optional: sidebar close karne ke liye
+  >
+    About Us
+  </Link> */}
+
+
+
+
           <a href="#" className="d-block mb-1 text-dark text-decoration-none" onClick={onClose}>Advertise With Us</a>
+                          {/* <Link 
+    to="/advertise" 
+    className="d-block mb-1 text-dark text-decoration-none"
+    onClick={onClose} // optional: sidebar close karne ke liye
+  >
+Advertise With Us
+  </Link> */}
+
+
+
+
+
+
+
           <a href="#" className="d-block mb-1 text-dark text-decoration-none" onClick={onClose}>Contact Us</a>
            {/* <Link 
     to="/contact-us" 
@@ -827,6 +856,9 @@ const LeftSidebar = ({ isOpen, onClose, states = [] }) => {
   >
     Contact Us
   </Link> */}
+
+
+  
           <a href="#" className="d-block mb-1 text-dark text-decoration-none" onClick={onClose}>Careers</a>
 
           <h6 className="fw-bold mt-3 mb-2">Quick Links</h6>

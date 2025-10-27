@@ -393,8 +393,11 @@ import AllWebStoriesPage from "../../webStory/AllWebStoriesPage";
 import AllShortsPage from "../../components/NewsDetails/AllShortsPage";
 import CategoryDetailPage from "../../Directory/CategoryDetailPage";
 import CompanyDetailPage from "../../Directory/CompanyDetailPage";
-import Profile from '../../Directory/Profile.jsx'
-
+import Profile from '../../Directory/Profile.jsx';
+import ContactUs from '../../components/common/saidbarPage/ContactUs.jsx';
+// import AboutUs from "../../components/common/saidbarPage/AboutUs.jsx";
+import { AboutUs } from '../../components/common/saidbarPage/AboutUs.jsx';
+import Advertise from "../../components/common/saidbarPage/Advertise.jsx";
 
 const HEADER_HEIGHT = 155; // px
 const TOGGLE_BUTTON_OFFSET = 50; // px
@@ -484,6 +487,9 @@ const HomePage1 = () => {
           <Route path="/login" element={<Form />} />
                <Route path="/company/:companyId" element={<CompanyDetailPage />} />
                <Route path="/profile" element={<Profile />} /> 
+               <Route path="/contact-us" element={<ContactUs />} />
+               <Route path="/about-us" element={<AboutUs/>} />
+               <Route path="/advertise" element={<Advertise />} />
    
 
           <Route element={<LayoutWithRightSidebarOnly />}>

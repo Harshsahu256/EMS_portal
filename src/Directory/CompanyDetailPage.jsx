@@ -1549,6 +1549,378 @@
 
 // export default CompanyDetailPage;
 
+// import React, { useEffect, useState } from "react";
+// import { useLocation, useParams, Link } from "react-router-dom";
+// import { Container, Row, Col, Card, Button, Spinner, Alert, ListGroup, Image, Nav } from "react-bootstrap";
+// import {
+//   FaCheckCircle, FaGlobe, FaMapMarkerAlt, FaPhone, FaEnvelope, FaArrowLeft, FaBoxes
+// } from 'react-icons/fa';
+// import { getCompanyById } from "../Services/authApi";
+
+// const yellowpagesPlaceholder = "https://via.placeholder.com/150?text=YP"; // Placeholder for generic images
+
+// const CompanyDetailPage = () => {
+//   const { companyId } = useParams();
+//   const location = useLocation();
+//   const [company, setCompany] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [activeTab, setActiveTab] = useState('overview'); // State for active tab
+
+//   useEffect(() => {
+//     const fetchCompanyDetails = async () => {
+//       setError(null);
+//       setLoading(true);
+
+//       if (location.state && location.state.companyDetails) {
+//         setCompany(location.state.companyDetails);
+//         setLoading(false);
+//       } else {
+//         try {
+//           const res = await getCompanyById(companyId);
+//           if (res.success && res.data) setCompany(res.data);
+//           else setError(res.message || "Failed to fetch company details.");
+//         } catch (err) {
+//           setError(err.message || "Unexpected error occurred.");
+//         } finally {
+//           setLoading(false);
+//         }
+//       }
+//     };
+//     fetchCompanyDetails();
+//   }, [companyId, location.state]);
+
+//   const renderStars = (rating) => {
+//     const stars = [];
+//     const fullStars = Math.floor(rating);
+//     for (let i = 0; i < fullStars; i++) stars.push(<span key={i} className="text-warning">&#9733;</span>);
+//     if (rating % 1 !== 0 && rating > 0) stars.push(<span key="half" className="text-warning">&#9734;</span>);
+//     for (let i = stars.length; i < 5; i++) stars.push(<span key={`empty-${i}`} className="text-secondary">&#9734;</span>);
+//     return stars;
+//   };
+
+//   if (loading) return (
+//     <Container className="text-center py-5">
+//       <Spinner animation="border" className="my-3" />
+//       <p className="mt-3">Loading company details...</p>
+//     </Container>
+//   );
+//   if (error || !company) return (
+//     <Container className="py-5">
+//       <Alert variant="danger">{error || "Company not found."}</Alert>
+//       <Link to="/directory"><Button variant="danger" style={{ backgroundColor: '#c00', borderColor: '#c00' }}>Back to Directory</Button></Link>
+//     </Container>
+//   );
+
+//   const daysOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+//   const mainBackgroundImage = company.banner && company.banner.length > 0
+//     ? company.banner[0]
+//     : 'https://via.placeholder.com/1500x350?text=Company+Storefront+Image'; // Increased placeholder height
+
+//   // Collect all images for the "Photos" tab
+//   const allImages = [];
+//   if (company.banner && company.banner.length > 0) {
+//     allImages.push(...company.banner);
+//   }
+//   if (company.products && company.products.length > 0) {
+//     company.products.forEach(product => {
+//       if (product.images && product.images.length > 0) {
+//         allImages.push(...product.images);
+//       }
+//     });
+//   }
+
+//   return (
+//     <Container fluid className="p-0">
+//       {/* Top section with background image and overlaid details */}
+//       <div
+//         className="position-relative"
+//         style={{
+//           backgroundImage: `url(${mainBackgroundImage})`,
+//           backgroundSize: 'cover',
+//           backgroundPosition: 'center',
+//           minHeight: '350px', // Adjusted minHeight to make the image more visible
+//           paddingTop: '60px', // Add padding to push content down from the very top
+//           paddingBottom: '20px',
+//         }}
+//       >
+//         {/* Top-right action buttons removed */}
+
+//         <Container className="h-100">
+//           <Row className="h-100">
+//             <Col xs={12} md={6} lg={5} className="d-flex align-items-end ps-3 pt-3">
+//               <div
+//                 className="p-4 w-100"
+//                 style={{
+//                   color: 'white',
+//                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+//                 }}
+//               >
+//                 <h2 className="mb-2" style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>{company.name}</h2>
+
+//                 <div className="d-flex align-items-center mb-2">
+//                   {renderStars(company.averageRating || 0)}
+//                   <span className="ms-1">({company.reviews?.length || 0} reviews)</span>
+//                 </div>
+
+//                 {company.address && <p className="mb-0" style={{ fontSize: '0.95rem' }}>{company.address}</p>}
+//                 {(company.city || company.pincode) &&
+//                   <p className="mb-2" style={{ fontSize: '0.95rem' }}>
+//                     {[company.city, company.pincode].filter(Boolean).join(" - ")}
+//                   </p>
+//                 }
+
+//                 {company.phone && <h3 className="fw-bold" style={{ fontSize: '1.7rem' }}>{company.phone}</h3>}
+//               </div>
+//             </Col>
+//           </Row>
+//         </Container>
+//       </div>
+
+//       {/* Navigation Tabs (Overview, Product, Photo) and Back Button - Improved Styling */}
+//       <Container className="mt-3">
+//         <div className="d-flex justify-content-between align-items-center"> {/* Added flex container */}
+//           <Nav defaultActiveKey="overview" onSelect={(selectedKey) => setActiveTab(selectedKey)}>
+//             <Nav.Item>
+//               <Nav.Link
+//                 eventKey="overview"
+//                 // Adjusted text color and added bold for active tab, muted for inactive
+//                 className={`py-2 px-3 me-2 ${activeTab === 'overview' ? 'text-dark fw-bold' : 'text-muted'}`}
+//                 style={{
+//                   fontSize: '1.2rem', // Increased font size
+//                   borderBottom: activeTab === 'overview' ? '3px solid #c00' : '3px solid transparent', // Red underline for active tab
+//                   paddingBottom: '8px', // Adjust padding to make room for the border
+//                   transition: 'border-bottom 0.2s ease-in-out', // Smooth transition for the underline
+//                 }}
+//               >
+//                 Overview
+//               </Nav.Link>
+//             </Nav.Item>
+//             <Nav.Item>
+//               <Nav.Link
+//                 eventKey="product"
+//                 className={`py-2 px-3 me-2 ${activeTab === 'product' ? 'text-dark fw-bold' : 'text-muted'}`}
+//                 style={{
+//                   fontSize: '1.2rem', // Increased font size
+//                   borderBottom: activeTab === 'product' ? '3px solid #c00' : '3px solid transparent', // Red underline for active tab
+//                   paddingBottom: '8px',
+//                   transition: 'border-bottom 0.2s ease-in-out',
+//                 }}
+//               >
+//                 Product
+//               </Nav.Link>
+//             </Nav.Item>
+//             <Nav.Item>
+//               <Nav.Link
+//                 eventKey="photo"
+//                 className={`py-2 px-3 me-2 ${activeTab === 'photo' ? 'text-dark fw-bold' : 'text-muted'}`}
+//                 style={{
+//                   fontSize: '1.2rem', // Increased font size
+//                   borderBottom: activeTab === 'photo' ? '3px solid #c00' : '3px solid transparent', // Red underline for active tab
+//                   paddingBottom: '8px',
+//                   transition: 'border-bottom 0.2s ease-in-out',
+//                 }}
+//               >
+//                 Photo
+//               </Nav.Link>
+//             </Nav.Item>
+//           </Nav>
+
+//           {/* Back Button (Moved here, styled as requested) */}
+//           <Button
+//             onClick={() => window.history.back()}
+//             className="d-flex align-items-center"
+//             style={{
+//               backgroundColor: '#c00', // Red background
+//               borderColor: '#c00',    // Red border
+//               color: 'white',        // White text
+//               padding: '8px 15px',   // Adjust padding for a box look
+//               borderRadius: '5px',   // Slightly rounded corners
+//               textDecoration: 'none', // Remove underline if it's a link-like button
+//             }}
+//           >
+//             <FaArrowLeft className="me-2" /> Back
+//           </Button>
+//         </div>
+//       </Container>
+
+
+//       {/* Content based on active tab */}
+//       <Container className="py-2">
+//         {/* Old Back Button removed from here */}
+
+//         {activeTab === 'overview' && (
+//           <>
+//             {/* Contact Info and Business Timings */}
+//             <Row>
+//               <Col md={6} className="mb-4">
+//                 <Card className="p-3 shadow-sm h-100">
+//                   <Card.Title>Contact Information</Card.Title>
+//                   <ListGroup variant="flush">
+//                     {company.phone && <ListGroup.Item><FaPhone /> {company.phone}</ListGroup.Item>}
+//                     {company.email && <ListGroup.Item><FaEnvelope /> {company.email}</ListGroup.Item>}
+//                     {(company.address || company.city || company.state || company.country) &&
+//                       <ListGroup.Item><FaMapMarkerAlt /> {[company.address, company.city, company.state, company.country].filter(Boolean).join(", ")}</ListGroup.Item>
+//                     }
+//                     {company.website && <ListGroup.Item><FaGlobe /> <a href={company.website} target="_blank" rel="noopener noreferrer">{company.website}</a></ListGroup.Item>}
+
+//                     {company.businessTimings && (
+//                       <ListGroup.Item className="pt-3">
+//                         <p className="fw-bold mb-2">Business Timings</p>
+//                         <ul className="list-unstyled">
+//                           {daysOrder.map(day => {
+//                             const t = company.businessTimings[day];
+//                             const dayName = day.charAt(0).toUpperCase() + day.slice(1);
+//                             const isOpen = t && t.open && t.close;
+//                             const timeRange = isOpen ? `${t.open} - ${t.close}` : 'Not Specified';
+//                             const status = isOpen ? 'Open' : 'Closed';
+
+//                             return (
+//                               <li key={day} className="d-flex justify-content-between align-items-center mb-1 small">
+//                                 <span>{dayName}</span>
+//                                 <div>
+//                                   <span>{timeRange}</span>
+//                                   <span className={`fw-bold ms-2 ${isOpen ? 'text-success' : 'text-danger'}`}>{status}</span>
+//                                 </div>
+//                               </li>
+//                             );
+//                           })}
+//                         </ul>
+//                       </ListGroup.Item>
+//                     )}
+//                   </ListGroup>
+//                 </Card>
+//               </Col>
+
+//               {/* Business Details */}
+//               <Col md={6} className="mb-4">
+//                 <Card className="p-3 shadow-sm h-100">
+//                   <Card.Title>Business Details</Card.Title>
+//                   <ListGroup variant="flush">
+//                     {company.gstNumber && <ListGroup.Item>GST Number: {company.gstNumber}</ListGroup.Item>}
+//                     {company.companyType && <ListGroup.Item>Company Type: {company.companyType}</ListGroup.Item>}
+//                     {company.keywords && company.keywords.length > 0 && <ListGroup.Item>Keywords: {company.keywords.join(", ")}</ListGroup.Item>}
+//                   </ListGroup>
+//                 </Card>
+//               </Col>
+//             </Row>
+
+//             {/* Products (as part of Overview, but also separately in Product tab) */}
+//             {company.products?.length > 0 && (
+//               <Row className="mb-4">
+//                 <Col md={12}>
+//                   <Card className="p-3 shadow-sm">
+//                     <h5 className="mb-3"><FaBoxes className="me-2" />Products</h5>
+//                     <Row xs={1} md={2} lg={3} className="g-3">
+//                       {company.products.map(prod => (
+//                         <Col key={prod._id}>
+//                           <Card className="shadow-sm h-100">
+//                             {prod.images && prod.images.length > 0 && prod.images[0] ? (
+//                               <Card.Img variant="top" src={prod.images[0]} alt={prod.name || "Product Image"} style={{ height: '150px', objectFit: 'cover' }} />
+//                             ) : (
+//                               <Card.Img variant="top" src={yellowpagesPlaceholder} alt="No Product Image" style={{ height: '150px', objectFit: 'cover' }} />
+//                             )}
+//                             <Card.Body className="p-2">
+//                               <Card.Title className="small mb-1 fw-bold">{prod.name || "Unnamed Product"}</Card.Title>
+//                               {prod.description && <Card.Text className="small mb-1 text-muted">{prod.description.substring(0, 50)}{prod.description.length > 50 ? '...' : ''}</Card.Text>}
+//                               {prod.status && <Card.Text className="small mb-0">Status: {prod.status}</Card.Text>}
+//                             </Card.Body>
+//                           </Card>
+//                         </Col>
+//                       ))}
+//                     </Row>
+//                   </Card>
+//                 </Col>
+//               </Row>
+//             )}
+
+//             {/* Other Company Banners (as part of Overview) */}
+//             {company.banner?.length > 1 && (
+//               <Row className="mb-4">
+//                 <Col md={12}>
+//                   <Card className="p-3 shadow-sm">
+//                     <h4>Other Company Banners</h4>
+//                     <Row xs={1} md={2} lg={3} className="g-3">
+//                       {company.banner.slice(1).map((url, idx) => (
+//                         <Col key={`banner-${idx}`}>
+//                           <Image src={url} alt={`Banner ${idx+2}`} fluid rounded style={{ height: '180px', objectFit: 'cover', width: '100%' }} />
+//                         </Col>
+//                       ))}
+//                     </Row>
+//                   </Card>
+//                 </Col>
+//               </Row>
+//             )}
+//           </>
+//         )}
+
+//         {activeTab === 'product' && (
+//           <Row className="mb-4">
+//             <Col md={12}>
+//               <Card className="p-3 shadow-sm">
+//                 <h4 className="mb-3"><FaBoxes className="me-2" />All Products</h4>
+//                 {company.products?.length > 0 ? (
+//                   <Row xs={1} md={2} lg={3} className="g-3">
+//                     {company.products.map(prod => (
+//                       <Col key={prod._id}>
+//                         <Card className="shadow-sm h-100">
+//                           {prod.images && prod.images.length > 0 && prod.images[0] ? (
+//                             <Card.Img variant="top" src={prod.images[0]} alt={prod.name || "Product Image"} style={{ height: '180px', objectFit: 'cover' }} />
+//                           ) : (
+//                             <Card.Img variant="top" src={yellowpagesPlaceholder} alt="No Product Image" style={{ height: '180px', objectFit: 'cover' }} />
+//                           )}
+//                           <Card.Body className="p-2">
+//                             <Card.Title className="small mb-1 fw-bold">{prod.name || "Unnamed Product"}</Card.Title>
+//                             {prod.description && <Card.Text className="small mb-1 text-muted">{prod.description.substring(0, 80)}{prod.description.length > 80 ? '...' : ''}</Card.Text>}
+//                             {prod.status && <Card.Text className="small mb-0">Status: {prod.status}</Card.Text>}
+//                           </Card.Body>
+//                         </Card>
+//                       </Col>
+//                     ))}
+//                   </Row>
+//                 ) : (
+//                   <Alert variant="info">No products available for this company.</Alert>
+//                 )}
+//               </Card>
+//             </Col>
+//           </Row>
+//         )}
+
+//         {activeTab === 'photo' && (
+//           <Row className="mb-4">
+//             <Col md={12}>
+//               <Card className="p-3 shadow-sm">
+//                 <h4 className="mb-3">Photos Gallery</h4>
+//                 {allImages.length > 0 ? (
+//                   <Row xs={1} sm={2} md={3} lg={4} className="g-3">
+//                     {allImages.map((url, idx) => (
+//                       <Col key={`all-image-${idx}`}>
+//                         <Image src={url} alt={`Gallery Image ${idx+1}`} fluid rounded style={{ height: '200px', objectFit: 'cover', width: '100%' }} />
+//                       </Col>
+//                     ))}
+//                   </Row>
+//                 ) : (
+//                   <Alert variant="info">No photos available for this company.</Alert>
+//                 )}
+//               </Card>
+//             </Col>
+//           </Row>
+//         )}
+
+//         {/* Back Button (This one is outside the tab content and at the very bottom) */}
+//         <div className="text-center mt-5">
+//           <Link to="/directory"><Button variant="danger" style={{ backgroundColor: '#c00', borderColor: '#c00' }}>Back to Directory</Button></Link>
+//         </div>
+//       </Container>
+//     </Container>
+//   );
+// };
+
+// export default CompanyDetailPage;
+ 
+
+
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, Link } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Spinner, Alert, ListGroup, Image, Nav } from "react-bootstrap";
@@ -1557,7 +1929,7 @@ import {
 } from 'react-icons/fa';
 import { getCompanyById } from "../Services/authApi";
 
-const yellowpagesPlaceholder = "https://via.placeholder.com/150?text=YP"; // Placeholder for generic images
+const yellowpagesPlaceholder = "https://via.placeholder.com/150?text=YP";
 
 const CompanyDetailPage = () => {
   const { companyId } = useParams();
@@ -1565,7 +1937,7 @@ const CompanyDetailPage = () => {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview'); // State for active tab
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     const fetchCompanyDetails = async () => {
@@ -1616,9 +1988,8 @@ const CompanyDetailPage = () => {
 
   const mainBackgroundImage = company.banner && company.banner.length > 0
     ? company.banner[0]
-    : 'https://via.placeholder.com/1500x350?text=Company+Storefront+Image'; // Increased placeholder height
+    : 'https://via.placeholder.com/1500x350?text=Company+Storefront+Image';
 
-  // Collect all images for the "Photos" tab
   const allImages = [];
   if (company.banner && company.banner.length > 0) {
     allImages.push(...company.banner);
@@ -1640,21 +2011,27 @@ const CompanyDetailPage = () => {
           backgroundImage: `url(${mainBackgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          minHeight: '350px', // Adjusted minHeight to make the image more visible
-          paddingTop: '60px', // Add padding to push content down from the very top
-          paddingBottom: '20px',
+          minHeight: '350px',
+          padding: '60px 0 20px 0', // ऊपर-नीचे पैडिंग
         }}
       >
-        {/* Top-right action buttons removed */}
-
         <Container className="h-100">
-          <Row className="h-100">
-            <Col xs={12} md={6} lg={5} className="d-flex align-items-end ps-3 pt-3">
+          <Row className="h-100 align-items-end"> {/* align-items-end ताकि बॉक्स नीचे रहे */}
+            <Col xs={12} md={8} lg={6}>
+              {/* ✅ यहाँ बदलाव किया गया है */}
               <div
-                className="p-4 w-100"
+                className="p-4" // Bootstrap padding class
                 style={{
+                  // 1. बैकग्राउंड को ब्लर करने का इफ़ेक्ट
+                  backdropFilter: 'blur(10px)',
+                  // 2. हल्का सा ट्रांसपेरेंट बैकग्राउंड ताकि ब्लर दिखे
+                  backgroundColor: 'rgba(25, 25, 25, 0.25)',
+                  // 3. कोनों को गोल किया
+                  borderRadius: '12px',
+                  // 4. हल्का सा बॉर्डर (Optional, पर अच्छा लगता है)
+                  border: '1px solid rgba(255, 255, 255, 0.18)',
                   color: 'white',
-                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+                  textShadow: '1px 1px 3px rgba(0,0,0,0.5)', // टेक्स्ट पर हल्की शैडो
                 }}
               >
                 <h2 className="mb-2" style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>{company.name}</h2>
@@ -1678,81 +2055,38 @@ const CompanyDetailPage = () => {
         </Container>
       </div>
 
-      {/* Navigation Tabs (Overview, Product, Photo) and Back Button - Improved Styling */}
+      {/* ... बाकी का पूरा कोड वैसा का वैसा ही है ... */}
+      
+      {/* Navigation Tabs */}
       <Container className="mt-3">
-        <div className="d-flex justify-content-between align-items-center"> {/* Added flex container */}
+        <div className="d-flex justify-content-between align-items-center">
           <Nav defaultActiveKey="overview" onSelect={(selectedKey) => setActiveTab(selectedKey)}>
             <Nav.Item>
-              <Nav.Link
-                eventKey="overview"
-                // Adjusted text color and added bold for active tab, muted for inactive
-                className={`py-2 px-3 me-2 ${activeTab === 'overview' ? 'text-dark fw-bold' : 'text-muted'}`}
-                style={{
-                  fontSize: '1.2rem', // Increased font size
-                  borderBottom: activeTab === 'overview' ? '3px solid #c00' : '3px solid transparent', // Red underline for active tab
-                  paddingBottom: '8px', // Adjust padding to make room for the border
-                  transition: 'border-bottom 0.2s ease-in-out', // Smooth transition for the underline
-                }}
-              >
+              <Nav.Link eventKey="overview" className={`py-2 px-3 me-2 ${activeTab === 'overview' ? 'text-dark fw-bold' : 'text-muted'}`} style={{ fontSize: '1.2rem', borderBottom: activeTab === 'overview' ? '3px solid #c00' : '3px solid transparent', paddingBottom: '8px', transition: 'border-bottom 0.2s ease-in-out' }}>
                 Overview
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link
-                eventKey="product"
-                className={`py-2 px-3 me-2 ${activeTab === 'product' ? 'text-dark fw-bold' : 'text-muted'}`}
-                style={{
-                  fontSize: '1.2rem', // Increased font size
-                  borderBottom: activeTab === 'product' ? '3px solid #c00' : '3px solid transparent', // Red underline for active tab
-                  paddingBottom: '8px',
-                  transition: 'border-bottom 0.2s ease-in-out',
-                }}
-              >
+              <Nav.Link eventKey="product" className={`py-2 px-3 me-2 ${activeTab === 'product' ? 'text-dark fw-bold' : 'text-muted'}`} style={{ fontSize: '1.2rem', borderBottom: activeTab === 'product' ? '3px solid #c00' : '3px solid transparent', paddingBottom: '8px', transition: 'border-bottom 0.2s ease-in-out' }}>
                 Product
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link
-                eventKey="photo"
-                className={`py-2 px-3 me-2 ${activeTab === 'photo' ? 'text-dark fw-bold' : 'text-muted'}`}
-                style={{
-                  fontSize: '1.2rem', // Increased font size
-                  borderBottom: activeTab === 'photo' ? '3px solid #c00' : '3px solid transparent', // Red underline for active tab
-                  paddingBottom: '8px',
-                  transition: 'border-bottom 0.2s ease-in-out',
-                }}
-              >
+              <Nav.Link eventKey="photo" className={`py-2 px-3 me-2 ${activeTab === 'photo' ? 'text-dark fw-bold' : 'text-muted'}`} style={{ fontSize: '1.2rem', borderBottom: activeTab === 'photo' ? '3px solid #c00' : '3px solid transparent', paddingBottom: '8px', transition: 'border-bottom 0.2s ease-in-out' }}>
                 Photo
               </Nav.Link>
             </Nav.Item>
           </Nav>
-
-          {/* Back Button (Moved here, styled as requested) */}
-          <Button
-            onClick={() => window.history.back()}
-            className="d-flex align-items-center"
-            style={{
-              backgroundColor: '#c00', // Red background
-              borderColor: '#c00',    // Red border
-              color: 'white',        // White text
-              padding: '8px 15px',   // Adjust padding for a box look
-              borderRadius: '5px',   // Slightly rounded corners
-              textDecoration: 'none', // Remove underline if it's a link-like button
-            }}
-          >
+          <Button onClick={() => window.history.back()} className="d-flex align-items-center" style={{ backgroundColor: '#c00', borderColor: '#c00', color: 'white', padding: '8px 15px', borderRadius: '5px', textDecoration: 'none' }}>
             <FaArrowLeft className="me-2" /> Back
           </Button>
         </div>
       </Container>
-
-
+      
       {/* Content based on active tab */}
       <Container className="py-2">
-        {/* Old Back Button removed from here */}
-
         {activeTab === 'overview' && (
           <>
-            {/* Contact Info and Business Timings */}
             <Row>
               <Col md={6} className="mb-4">
                 <Card className="p-3 shadow-sm h-100">
@@ -1764,7 +2098,6 @@ const CompanyDetailPage = () => {
                       <ListGroup.Item><FaMapMarkerAlt /> {[company.address, company.city, company.state, company.country].filter(Boolean).join(", ")}</ListGroup.Item>
                     }
                     {company.website && <ListGroup.Item><FaGlobe /> <a href={company.website} target="_blank" rel="noopener noreferrer">{company.website}</a></ListGroup.Item>}
-
                     {company.businessTimings && (
                       <ListGroup.Item className="pt-3">
                         <p className="fw-bold mb-2">Business Timings</p>
@@ -1775,7 +2108,6 @@ const CompanyDetailPage = () => {
                             const isOpen = t && t.open && t.close;
                             const timeRange = isOpen ? `${t.open} - ${t.close}` : 'Not Specified';
                             const status = isOpen ? 'Open' : 'Closed';
-
                             return (
                               <li key={day} className="d-flex justify-content-between align-items-center mb-1 small">
                                 <span>{dayName}</span>
@@ -1792,8 +2124,6 @@ const CompanyDetailPage = () => {
                   </ListGroup>
                 </Card>
               </Col>
-
-              {/* Business Details */}
               <Col md={6} className="mb-4">
                 <Card className="p-3 shadow-sm h-100">
                   <Card.Title>Business Details</Card.Title>
@@ -1805,8 +2135,6 @@ const CompanyDetailPage = () => {
                 </Card>
               </Col>
             </Row>
-
-            {/* Products (as part of Overview, but also separately in Product tab) */}
             {company.products?.length > 0 && (
               <Row className="mb-4">
                 <Col md={12}>
@@ -1834,8 +2162,6 @@ const CompanyDetailPage = () => {
                 </Col>
               </Row>
             )}
-
-            {/* Other Company Banners (as part of Overview) */}
             {company.banner?.length > 1 && (
               <Row className="mb-4">
                 <Col md={12}>
@@ -1854,7 +2180,6 @@ const CompanyDetailPage = () => {
             )}
           </>
         )}
-
         {activeTab === 'product' && (
           <Row className="mb-4">
             <Col md={12}>
@@ -1886,7 +2211,6 @@ const CompanyDetailPage = () => {
             </Col>
           </Row>
         )}
-
         {activeTab === 'photo' && (
           <Row className="mb-4">
             <Col md={12}>
@@ -1907,8 +2231,6 @@ const CompanyDetailPage = () => {
             </Col>
           </Row>
         )}
-
-        {/* Back Button (This one is outside the tab content and at the very bottom) */}
         <div className="text-center mt-5">
           <Link to="/directory"><Button variant="danger" style={{ backgroundColor: '#c00', borderColor: '#c00' }}>Back to Directory</Button></Link>
         </div>
@@ -1918,4 +2240,3 @@ const CompanyDetailPage = () => {
 };
 
 export default CompanyDetailPage;
- 

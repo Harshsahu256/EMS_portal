@@ -14,7 +14,7 @@ const TopBar = () => {
     const handleLanguageChange = (lang) => {
         changeLanguage(lang);
     };
-
+                                                                                                                                                                                                
     return (
         <>
             {/* यह छिपा हुआ कंपोनेंट पेज में कहीं भी हो सकता है, यह स्क्रिप्ट लोड करने का काम करता है */}
@@ -41,7 +41,7 @@ const TopBar = () => {
                             </Button>
                             <span className="text-white mx-1">|</span>
                             <Button
-                                variant="link"
+                                variant="link"                                                                                                                                                                                          
                                 className="text-white p-1 text-decoration-none"
                                 onClick={() => handleLanguageChange('hi')}
                             >
@@ -56,4 +56,3 @@ const TopBar = () => {
 };
 
 export default TopBar;
-

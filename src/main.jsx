@@ -16,7 +16,7 @@
 //         <App />
 //       </AuthProvider>
 //     </BrowserRouter>
-//   </React.StrictMode>
+//   <0React.StrictMode>
 // );
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -29,7 +29,7 @@ import './locales/i18n.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  <React.StrictMode>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     {/* 2. Suspense जोड़ना बहुत ज़रूरी है */}
     {/* यह तब तक "Loading..." दिखाएगा जब तक Tolgee से ट्रांसलेशन लोड नहीं हो जाते */}
     <React.Suspense fallback={<div>Loading...</div>}>

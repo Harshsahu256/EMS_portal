@@ -1393,13 +1393,13 @@
 //               text="डायरेक्टरी"
 //               link="/directory"
 //             />
-//              {/* <HeaderActionIcon
-//               icon={<MdOutlineSubscriptions color="#c41229ff" />}
-//               text="Subscriber"
-//               link="https://services.emsindia.com/public/authentication/admin_login"
-//               isReactIcon
-//               size={28}
-//             /> */}
+            //  {/* <HeaderActionIcon
+            //   icon={<MdOutlineSubscriptions color="#c41229ff" />}
+            //   text="Subscriber"
+            //   link="https://services.emsindia.com/public/authentication/admin_login"
+            //   isReactIcon
+            //   size={28}
+            // /> */}
 //             <HeaderActionIcon
 //   icon={<MdOutlineSubscriptions color="#c41229ff" />}
 //   text="Subscriber"
@@ -2186,11 +2186,24 @@ const Header = () => {
 
           {/* Right Icons */}
           <Nav className="d-flex flex-row align-items-center gap-3 gap-md-4">
-            <HeaderActionIcon icon={epaperIcon} text="E-Paper" link="/#" />
+            {/* <HeaderActionIcon icon={epaperIcon} text="E-Paper" link="/#" /> */}
+        
+     <HeaderActionIcon
+              icon={epaperIcon}
+              text="E-Paper"
+              link="http://www.jabalpurexpress.com/"
+       /> 
             <HeaderActionIcon icon={searchIcon} text="Search" link="/search" />
             <HeaderActionIcon icon={emstvIcon} text="EMS TV" link="/emstv" />
             <HeaderActionIcon icon={directoryIcon} text="Directory" link="/directory" />
-            <HeaderActionIcon icon={<MdOutlineSubscriptions color="#c41229ff" />} text="Subscriber" link="#" isReactIcon size={28} />
+            {/* <HeaderActionIcon icon={<MdOutlineSubscriptions color="#c41229ff" />} text="Subscriber" link="#" isReactIcon size={28} /> */}
+            <HeaderActionIcon
+              icon={<MdOutlineSubscriptions color="#c41229ff" />}
+              text="Subscriber"
+              link="https://services.emsindia.com/public/authentication/admin_login"
+              isReactIcon
+              size={28}
+            />
           </Nav>
         </Container>
       </div>
@@ -2223,3 +2236,17 @@ const Header = () => {
 };
 
 export default Header;
+
+
+
+
+
+
+
+
+
+
+
+
+
+   

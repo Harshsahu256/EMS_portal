@@ -537,3 +537,44 @@ export const requestCompanyUpdate = async (updateData) => {
     throw error.response?.data || error;
   }
 };
+
+// ======================================================================
+// --- Video Interaction Functions ---
+// ======================================================================
+
+/**
+ * वीडियो पर लाइक/अनलाइक टॉगल करता है। इसके लिए लॉगिन होना ज़रूरी है।
+ * @param {string} videoId - जिस वीडियो को लाइक करना है उसकी ID.
+ */
+export const likeVideo = async (videoId) => {
+  try {
+    const response = await axios.post(
+      API_END_POINT.LIKE_VIDEO(videoId),
+      {}, // बॉडी खाली रहेगी, क्योंकि सर्वर सिर्फ टोकन से यूजर ID लेता है
+      getAuthHeaders() // यह सुनिश्चित करेगा कि रिक्वेस्ट के साथ टोकन भेजा जाए
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error liking video ${videoId}:`, error.response?.data || error.message);
+    throw error.response?.data?.message || "Failed to like the video.";
+  }
+};
+
+/**
+ * वीडियो पर एक नया कमेंट जोड़ता है। इसके लिए लॉगिन होना ज़रूरी है।
+ * @param {string} videoId - जिस वीडियो पर कमेंट करना है उसकी ID.
+ * @param {object} commentData - कमेंट का डेटा, उदाहरण के लिए: { text: "बहुत अच्छा वीडियो!" }.
+ */
+export const addCommentToVideo = async (videoId, commentData) => {
+  try {
+    const response = await axios.post(
+      API_END_POINT.COMMENT_ON_VIDEO(videoId),
+      commentData, // कमेंट का टेक्स्ट {text: "..."} बॉडी में भेजा जाएगा
+      getAuthHeaders() // यह सुनिश्चित करेगा कि रिक्वेस्ट के साथ टोकन भेजा जाए
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error commenting on video ${videoId}:`, error.response?.data || error.message);
+    throw error.response?.data?.message || "Failed to add comment to the video.";
+  }
+};
