@@ -583,8 +583,659 @@
 
 
 
+// import React, { useState, useEffect } from "react";
+// import { useParams, useLocation } from "react-router-dom";
+// import {
+//   getNewsById,
+//   addLikeToNews,
+//   addCommentToNews,
+//   allNews,
+// } from "../../Services/authApi";
+// import RelatedNews from "./RelatedNews";
+// import UserAvatar from "../Main_NewsDetails/UserAvatar";
+// import "bootstrap-icons/font/bootstrap-icons.css";
+// import { Container, Spinner } from "react-bootstrap";
+
+// // Media Renderer - इसमें कोई बदलाव नहीं
+// const MediaRenderer = ({ mediaItem }) => {
+//   if (!mediaItem) {
+//     return <div className="bg-light w-100 rounded mb-3" style={{ height: '300px' }}></div>;
+//   }
+//   switch (mediaItem.type) {
+//     case "video":
+//       return (
+//         <video
+//           src={mediaItem.url}
+//           controls
+//           className="img-fluid w-100 rounded mb-3"
+//           style={{ maxHeight: "500px", backgroundColor: "#000" }}
+//         />
+//       );
+//     case "image":
+//     default:
+//       return <img src={mediaItem.url} alt={mediaItem.caption || "News Media"} className="img-fluid w-100 rounded mb-3" />;
+//   }
+// };
+
+// // **नया हेल्पर फंक्शन**: यह फंक्शन HTML स्ट्रिंग से इमेज के साइज से जुड़े
+// // एट्रिब्यूट्स (width, height) और इनलाइन स्टाइल्स को हटाएगा.
+// // ताकि CSS पूरी तरह से इमेज को रिस्पॉन्सिव बना सके.
+// const cleanHtmlForImages = (htmlString) => {
+//   if (!htmlString) return '';
+
+//   // DOMParser का उपयोग करके HTML स्ट्रिंग को पार्स करें
+//   // यह ब्राउज़र के वातावरण में काम करेगा
+//   const parser = new DOMParser();
+//   const doc = parser.parseFromString(htmlString, 'text/html');
+
+//   // सभी <img> टैग्स को ढूंढें
+//   const images = doc.querySelectorAll('img');
+
+//   images.forEach(img => {
+//     // hardcoded width और height एट्रिब्यूट्स को हटा दें
+//     img.removeAttribute('width');
+//     img.removeAttribute('height');
+
+//     // इनलाइन width और height स्टाइल्स को हटा दें
+//     // उदाहरण: <img style="width: 500px; height: 300px;"> से width और height हटाना
+//     if (img.style.width) {
+//       img.style.width = ''; // इनलाइन स्टाइल से width को खाली करें
+//     }
+//     if (img.style.height) {
+//       img.style.height = ''; // इनलाइन स्टाइल से height को खाली करें
+//     }
+//     // आप चाहें तो अन्य संभावित इनलाइन स्टाइल्स को भी यहाँ हटा सकते हैं
+//     // जैसे कि max-width, min-width, आदि, यदि वे समस्या पैदा कर रहे हों.
+//   });
+
+//   // साफ की हुई HTML स्ट्रिंग को वापस लौटाएं
+//   return doc.body.innerHTML;
+// };
+
+
+// const NewsDetailPage = () => {
+//   const { slugId } = useParams();
+//   // Ensure newsId is extracted correctly
+//   const newsId = slugId ? slugId.split("-").pop() : null; 
+//   const location = useLocation();
+
+//   const [article, setArticle] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [relatedNews, setRelatedNews] = useState([]);
+
+//   const [likeCount, setLikeCount] = useState(0);
+//   const [isLiked, setIsLiked] = useState(false);
+//   const [commentCount, setCommentCount] = useState(0);
+//   const [comments, setComments] = useState([]);
+//   const [showComments, setShowComments] = useState(false);
+//   const [newComment, setNewComment] = useState("");
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+
+//   // क्लीन किए गए HTML कंटेंट के लिए नया स्टेट
+//   const [cleanedArticleContent, setCleanedArticleContent] = useState('');
+
+
+//   // Format date + time
+//   const formatFullDateTime = (dateString) => {
+//     if (!dateString) return '';
+//     const options = { day: 'numeric',  month: "2-digit", year: 'numeric', hour: '2-digit', minute: '2-digit' };
+//     return new Date(dateString).toLocaleString("hi-IN", options);
+//   };
+
+//  useEffect(() => {
+//   if (!newsId) { // slugId के बजाय newsId चेक करें
+//       setLoading(false);
+//       setError("News ID not found in URL.");
+//       return;
+//   }
+
+//   const fetchArticleAndRelated = async () => {
+//     try {
+//       setLoading(true);
+//       setArticle(null);
+//       setError(null);
+//       setCleanedArticleContent(''); // कंटेंट लोड होने से पहले इसे रीसेट करें
+//       window.scrollTo(0, 0);
+
+//       const articleRes = await getNewsById(newsId);
+//       if (!articleRes.success) throw new Error(articleRes.message || "Failed to fetch article");
+
+//       const currentArticle = articleRes.data || {};
+//       setArticle(currentArticle);
+//       setLikeCount(currentArticle.likesCount || 0);
+//       setCommentCount(currentArticle.commentsCount || 0);
+//       setComments(currentArticle.comments || []);
+//       setIsLiked(currentArticle.isLiked || false);
+
+//       // **यहाँ पर कंटेंट को क्लीन करें और स्टेट में सेट करें**
+//       if (currentArticle.content_hi) {
+//         setCleanedArticleContent(cleanHtmlForImages(currentArticle.content_hi));
+//       }
+
+//       let related = [];
+
+//       // 1️⃣ Option 1: location.state
+//       const relatedFromState = location.state?.relatedArticles?.filter(item => item._id !== currentArticle._id);
+//       if (relatedFromState?.length > 0) {
+//         related = relatedFromState;
+//       } 
+//       // 2️⃣ Option 2: category-based
+//       else if (currentArticle.category?._id) {
+//         const allNewsRes = await allNews();
+//         if (allNewsRes.success) {
+//           const categoryNews = allNewsRes.data.filter(
+//             item => item._id !== currentArticle._id && item.category?._id === currentArticle.category._id
+//           );
+//           if (categoryNews.length > 0) related = categoryNews;
+//           // 3️⃣ Option 3: Tag/Author/Trending fallback
+//           else {
+//             const fallbackNews = allNewsRes.data
+//               .filter(item => item._id !== currentArticle._id)
+//               .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
+//               .slice(0, 5);
+//             related = fallbackNews;
+//           }
+//         }
+//       } 
+//       // 3️⃣ Option 3: if no category
+//       else {
+//         const allNewsRes = await allNews();
+//         if (allNewsRes.success) {
+//           const fallbackNews = allNewsRes.data
+//             .filter(item => item._id !== currentArticle._id)
+//             .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
+//             .slice(0, 5);
+//           related = fallbackNews;
+//         }
+//       }
+
+//       setRelatedNews(related);
+
+//     } catch (err) {
+//       setError(err.message || "A network error occurred.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   fetchArticleAndRelated();
+// }, [newsId, location.state]); // useEffect dependency array में slugId के बजाय newsId का उपयोग करें
+
+
+//   const handleLikeClick = async () => {
+//     if (!article) return;
+//     try {
+//       const res = await addLikeToNews(article._id);
+//       if (res.success) {
+//         if (isLiked) {
+//           setIsLiked(false);
+//           setLikeCount(prev => prev - 1);
+//         } else {
+//           setIsLiked(true);
+//           setLikeCount(prev => prev + 1);
+//         }
+//       }
+//     } catch (err) {
+//       console.error("Like error:", err);
+//     }
+//   };
+
+//   const handleCommentSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!newComment.trim() || !article) return;
+//     setIsSubmitting(true);
+//     try {
+//       const res = await addCommentToNews(article._id, { text: newComment });
+//       if (res.success) {
+//         setComments(res.data.comments || []);
+//         setCommentCount(res.data.commentsCount || commentCount);
+//         setNewComment("");
+//       }
+//     } catch (err) {
+//       console.error("Comment error:", err);
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   const handleShareClick = async () => {
+//     if (!article) return;
+//     const shareData = {
+//       title: article.title_en,
+//       text: article.content_hi?.slice(0, 100),
+//       url: window.location.href,
+//     };
+//     try { await navigator.share(shareData); } catch (err) { console.error(err); }
+//   };
+
+//   if (loading) {
+//     return (
+//       <Container className="text-center my-5" style={{ minHeight: '60vh' }}>
+//         <Spinner animation="border" variant="primary" />
+//         <p className="mt-2">Loading Article...</p>
+//       </Container>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <Container className="text-center my-5">
+//         <p className="text-danger">{error}</p>
+//       </Container>
+//     );
+//   }
+
+//   if (!article) {
+//     return (
+//       <Container className="text-center my-5">
+//         <p>Article not found.</p>
+//       </Container>
+//     );
+//   }
+
+//   return (
+//     <Container className="my-4">
+//       <div className="bg-white p-3 p-md-4 shadow-sm" style={{ border: "1px solid #eee", borderRadius: "8px" }}>
+//         <h1 className="fw-bold mb-3" style={{ fontSize: "1.6rem" }}>{article.title_hi}</h1>
+//         <MediaRenderer mediaItem={article.media?.[0]} />
+
+//         <div className="d-flex align-items-center mb-3">
+//           <UserAvatar user={article.createdBy} />
+//           <small className="ms-2 text-muted">{article.createdBy?.name || "EMS"} | {formatFullDateTime(article.createdAt)}</small>
+//         </div>
+
+//         {/* **यहाँ dangerouslySetInnerHTML में क्लीन किए गए कंटेंट का उपयोग करें** */}
+//         <div className="article-content mb-3" style={{ fontSize: "1rem", lineHeight: "1.7", whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: cleanedArticleContent }}></div>
+
+//         <div className="d-flex flex-wrap align-items-center gap-3 mt-3 pt-2 border-top">
+//           <div onClick={handleLikeClick} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
+//             <i className={`fs-5 bi ${isLiked ? "bi-hand-thumbs-up-fill text-danger" : "bi-hand-thumbs-up"}`}></i>
+//             <span>{likeCount}</span>
+//           </div>
+
+//           <div onClick={() => setShowComments(!showComments)} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
+//             <i className="bi bi-chat-dots fs-5"></i>
+//             <span>{commentCount}</span>
+//           </div>
+
+//           <div onClick={handleShareClick} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
+//             <i className="bi bi-share fs-5"></i>
+//           </div>
+
+//           <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(article.title_hi + " - " + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="d-flex align-items-center gap-2 text-success" style={{ cursor: "pointer" }} title="Share on WhatsApp">
+//             <i className="bi bi-whatsapp fs-5"></i>
+//           </a>
+
+//           <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="d-flex align-items-center gap-2 text-primary" style={{ cursor: "pointer" }} title="Share on Facebook">
+//             <i className="bi bi-facebook fs-5"></i>
+//           </a>
+//         </div>
+
+//         {showComments && (
+//           <div className="mt-4 border-top pt-3">
+//             <h4 className="mb-3">Comments ({commentCount})</h4>
+//             <form onSubmit={handleCommentSubmit} className="d-flex flex-column flex-md-row gap-2 mb-4">
+//               <input type="text" className="form-control" placeholder="Write a comment..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isSubmitting} />
+//               <button type="submit" className="btn btn-primary" disabled={isSubmitting || !newComment.trim()}>{isSubmitting ? "..." : "Post"}</button>
+//             </form>
+//             <div className="comments-list">
+//               {comments.length > 0 ? comments.map(comment => (
+//                 <div key={comment._id} className="border-bottom pb-2 mb-2">
+//                   <div className="d-flex align-items-center mb-1">
+//                     <UserAvatar user={comment.user} size={25} />
+//                     <strong className="ms-2">{comment.user?.name || "Anonymous"}</strong>
+//                   </div>
+//                   <p className="mb-0 ps-5">{comment.text}</p>
+//                 </div>
+//               )) : <p>No comments yet. Be the first to comment!</p>}
+//             </div>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Related News */}
+//       <RelatedNews articles={relatedNews} currentArticleId={article._id} />
+//     </Container>
+//   );
+// };
+
+// export default NewsDetailPage;
+
+
+// import React, { useState, useEffect } from "react";
+// import { useParams, useLocation, useNavigate } from "react-router-dom"; 
+// import {
+//   getNewsById,
+//   addLikeToNews,
+//   addCommentToNews,
+//   allNews,
+// } from "../../Services/authApi";
+// import RelatedNews from "./RelatedNews";
+// import UserAvatar from "../Main_NewsDetails/UserAvatar";
+// import "bootstrap-icons/font/bootstrap-icons.css";
+// import { Container, Spinner } from "react-bootstrap";
+
+// // Media Renderer - इसमें कोई बदलाव नहीं
+// const MediaRenderer = ({ mediaItem }) => {
+//   if (!mediaItem) {
+//     return <div className="bg-light w-100 rounded mb-3" style={{ height: '300px' }}></div>;
+//   }
+//   switch (mediaItem.type) {
+//     case "video":
+//       return (
+//         <video
+//           src={mediaItem.url}
+//           controls
+//           className="img-fluid w-100 rounded mb-3"
+//           style={{ maxHeight: "500px", backgroundColor: "#000" }}
+//         />
+//       );
+//     case "image":
+//     default:
+//       return <img src={mediaItem.url} alt={mediaItem.caption || "News Media"} className="img-fluid w-100 rounded mb-3" />;
+//   }
+// };
+
+// // नया हेल्पर फंक्शन: यह फंक्शन HTML स्ट्रिंग से इमेज के साइज से जुड़े
+// // एट्रिब्यूट्स (width, height) और इनलाइन स्टाइल्स को हटाएगा.
+// // ताकि CSS पूरी तरह से इमेज को रिस्पॉन्सिव बना सके.
+// const cleanHtmlForImages = (htmlString) => {
+//   if (!htmlString) return '';
+
+//   const parser = new DOMParser();
+//   const doc = parser.parseFromString(htmlString, 'text/html');
+
+//   const images = doc.querySelectorAll('img');
+
+//   images.forEach(img => {
+//     img.removeAttribute('width');
+//     img.removeAttribute('height');
+
+//     if (img.style.width) {
+//       img.style.width = ''; 
+//     }
+//     if (img.style.height) {
+//       img.style.height = ''; 
+//     }
+//   });
+
+//   return doc.body.innerHTML;
+// };
+
+
+// const NewsDetailPage = () => {
+//   const { slugId } = useParams();
+//   const newsId = slugId ? slugId.split("-").pop() : null; 
+//   const location = useLocation();
+//   const navigate = useNavigate(); // useNavigate hook
+
+//   const [article, setArticle] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [relatedNews, setRelatedNews] = useState([]);
+
+//   const [likeCount, setLikeCount] = useState(0);
+//   const [isLiked, setIsLiked] = useState(false);
+//   const [commentCount, setCommentCount] = useState(0);
+//   const [comments, setComments] = useState([]);
+//   const [showComments, setShowComments] = useState(false);
+//   const [newComment, setNewComment] = useState("");
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+
+//   const [cleanedArticleContent, setCleanedArticleContent] = useState('');
+
+
+//   // Format date + time
+//   const formatFullDateTime = (dateString) => {
+//     if (!dateString) return '';
+//     const options = { day: 'numeric',  month: "2-digit", year: 'numeric', hour: '2-digit', minute: '2-digit' };
+//     return new Date(dateString).toLocaleString("hi-IN", options);
+//   };
+
+//  useEffect(() => {
+//   if (!newsId) {
+//       setLoading(false);
+//       setError("News ID not found in URL.");
+//       return;
+//   }
+
+//   const fetchArticleAndRelated = async () => {
+//     try {
+//       setLoading(true);
+//       setArticle(null);
+//       setError(null);
+//       setCleanedArticleContent(''); 
+//       window.scrollTo(0, 0);
+
+//       const articleRes = await getNewsById(newsId); // getNewsById अब टोकन भेजेगा
+//       if (!articleRes.success) throw new Error(articleRes.message || "Failed to fetch article");
+
+//       const currentArticle = articleRes.data || {};
+//       setArticle(currentArticle);
+//       setLikeCount(currentArticle.likesCount || 0); // API से likesCount प्राप्त करें
+//       setCommentCount(currentArticle.commentsCount || 0); // API से commentsCount प्राप्त करें
+//       setComments(currentArticle.comments || []); // API से comments array प्राप्त करें
+//       setIsLiked(currentArticle.isLiked || false); // API से isLiked स्टेटस प्राप्त करें
+
+//       if (currentArticle.content_hi) {
+//         setCleanedArticleContent(cleanHtmlForImages(currentArticle.content_hi));
+//       }
+
+//       let related = [];
+
+//       const relatedFromState = location.state?.relatedArticles?.filter(item => item._id !== currentArticle._id);
+//       if (relatedFromState?.length > 0) {
+//         related = relatedFromState;
+//       } 
+//       else if (currentArticle.category?._id) {
+//         const allNewsRes = await allNews();
+//         if (allNewsRes.success) {
+//           const categoryNews = allNewsRes.data.filter(
+//             item => item._id !== currentArticle._id && item.category?._id === currentArticle.category._id
+//           );
+//           if (categoryNews.length > 0) related = categoryNews;
+//           else {
+//             const fallbackNews = allNewsRes.data
+//               .filter(item => item._id !== currentArticle._id)
+//               .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
+//               .slice(0, 5);
+//             related = fallbackNews;
+//           }
+//         }
+//       } 
+//       else {
+//         const allNewsRes = await allNews();
+//         if (allNewsRes.success) {
+//           const fallbackNews = allNewsRes.data
+//             .filter(item => item._id !== currentArticle._id)
+//             .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
+//             .slice(0, 5);
+//           related = fallbackNews;
+//         }
+//       }
+
+//       setRelatedNews(related);
+
+//     } catch (err) {
+//       console.error("Error fetching article details and related news:", err);
+//       setError(err.message || "A network error occurred.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   fetchArticleAndRelated();
+// }, [newsId, location.state]); 
+
+
+//   const handleLikeClick = async () => {
+//     if (!article) return;
+//     try {
+//       const res = await addLikeToNews(article._id); // addLikeToNews अब टोकन भेजेगा
+//       console.log("Like API Response:", res); // डीबग के लिए
+
+//       if (res.success) {
+//         // API प्रतिक्रिया से totalLikes और isLiked को अपडेट करें
+//         setLikeCount(res.totalLikes !== undefined ? res.totalLikes : likeCount); 
+//         setIsLiked(res.isLiked !== undefined ? res.isLiked : !isLiked); // यदि बैकएंड 'isLiked' नहीं भेजता तो टॉगल करें
+//       } else {
+//         alert(res.message || "Failed to like the article.");
+//       }
+//     } catch (err) {
+//       console.error("Like error:", err);
+//       // यदि यूजर लॉग इन नहीं है या कोई ऑथेंटिकेशन त्रुटि है तो लॉगिन पेज पर रीडायरेक्ट करें
+//       if (String(err).includes("401") || String(err).includes("403")) {
+//         alert("Please log in to like this article.");
+//         navigate('/login'); // Redirect to login
+//       } else {
+//         alert(err.message || "Failed to like the article.");
+//       }
+//     }
+//   };
+
+//   const handleCommentSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!newComment.trim() || !article) return;
+//     setIsSubmitting(true);
+//     try {
+//       const res = await addCommentToNews(article._id, { text: newComment }); // addCommentToNews अब टोकन भेजेगा
+//       console.log("Comment API Response:", res); // डीबग के लिए
+
+//       if (res.success) {
+//         // API प्रतिक्रिया से comments और commentsCount को अपडेट करें
+//         // मान लें कि API response में 'comment' ऑब्जेक्ट और 'commentsCount' देता है
+//         if (res.comment) {
+//             setComments(prevComments => [...prevComments, res.comment]);
+//             setCommentCount(res.commentsCount !== undefined ? res.commentsCount : (comments.length + 1));
+//         } else if (res.data && res.data.comments) { // यदि API 'data.comments' array देता है
+//             setComments(res.data.comments || []);
+//             setCommentCount(res.data.commentsCount !== undefined ? res.data.commentsCount : commentCount);
+//         }
+//         setNewComment("");
+//       } else {
+//         alert(res.message || "Failed to add comment.");
+//       }
+//     } catch (err) {
+//       console.error("Comment error:", err);
+//       // यदि यूजर लॉग इन नहीं है या कोई ऑथेंटिकेशन त्रुटि है तो लॉगिन पेज पर रीडायरेक्ट करें
+//       if (String(err).includes("401") || String(err).includes("403")) {
+//         alert("Please log in to comment on this article.");
+//         navigate('/login'); // Redirect to login
+//       } else {
+//         alert(err.message || "Failed to add comment.");
+//       }
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   const handleShareClick = async () => {
+//     if (!article) return;
+//     const shareData = {
+//       title: article.title_hi, // हिंदी टाइटल का उपयोग
+//       text: article.content_hi?.slice(0, 100),
+//       url: window.location.href,
+//     };
+//     try { await navigator.share(shareData); } catch (err) { console.error(err); }
+//   };
+
+//   if (loading) {
+//     return (
+//       <Container className="text-center my-5" style={{ minHeight: '60vh' }}>
+//         <Spinner animation="border" variant="primary" />
+//         <p className="mt-2">Loading Article...</p>
+//       </Container>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <Container className="text-center my-5">
+//         <p className="text-danger">{error}</p>
+//       </Container>
+//     );
+//   }
+
+//   if (!article) {
+//     return (
+//       <Container className="text-center my-5">
+//         <p>Article not found.</p>
+//       </Container>
+//     );
+//   }
+
+//   return (
+//     <Container className="my-4">
+//       <div className="bg-white p-3 p-md-4 shadow-sm" style={{ border: "1px solid #eee", borderRadius: "8px" }}>
+//         <h1 className="fw-bold mb-3" style={{ fontSize: "1.6rem" }}>{article.title_hi}</h1>
+//         <MediaRenderer mediaItem={article.media?.[0]} />
+
+//         <div className="d-flex align-items-center mb-3">
+//           <UserAvatar user={article.createdBy} />
+//           <small className="ms-2 text-muted">{article.createdBy?.name || "EMS"} | {formatFullDateTime(article.createdAt)}</small>
+//         </div>
+
+//         <div className="article-content mb-3" style={{ fontSize: "1rem", lineHeight: "1.7", whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: cleanedArticleContent }}></div>
+
+//         <div className="d-flex flex-wrap align-items-center gap-3 mt-3 pt-2 border-top">
+//           {/* Like Icon - अब API प्रतिक्रिया के आधार पर लाल होगा */}
+//           <div onClick={handleLikeClick} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
+//             <i className={`fs-5 bi ${isLiked ? "bi-hand-thumbs-up-fill text-danger" : "bi-hand-thumbs-up"}`}></i>
+//             <span>{likeCount}</span>
+//           </div>
+
+//           {/* Comment Icon - अब नीला होगा */}
+//           <div onClick={() => setShowComments(!showComments)} className="d-flex align-items-center gap-2 text-primary" style={{ cursor: "pointer" }}> 
+//             <i className="bi bi-chat-dots fs-5"></i>
+//             <span>{comments.length}</span> {/* comments.length का उपयोग करें */}
+//           </div>
+
+//           <div onClick={handleShareClick} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
+//             <i className="bi bi-share fs-5"></i>
+//           </div>
+
+//           <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(article.title_hi + " - " + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="d-flex align-items-center gap-2 text-success" style={{ cursor: "pointer" }} title="Share on WhatsApp">
+//             <i className="bi bi-whatsapp fs-5"></i>
+//           </a>
+
+//           <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="d-flex align-items-center gap-2 text-primary" style={{ cursor: "pointer" }} title="Share on Facebook">
+//             <i className="bi bi-facebook fs-5"></i>
+//           </a>
+//         </div>
+
+//         {showComments && (
+//           <div className="mt-4 border-top pt-3">
+//             <h4 className="mb-3">Comments ({comments.length})</h4> {/* comments.length का उपयोग करें */}
+//             <form onSubmit={handleCommentSubmit} className="d-flex flex-column flex-md-row gap-2 mb-4">
+//               <input type="text" className="form-control" placeholder="Write a comment..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isSubmitting} />
+//               <button type="submit" className="btn btn-primary" disabled={isSubmitting || !newComment.trim()}>{isSubmitting ? "..." : "Post"}</button>
+//             </form>
+//             <div className="comments-list">
+//               {comments.length > 0 ? comments.map(comment => (
+//                 <div key={comment._id} className="border-bottom pb-2 mb-2">
+//                   <div className="d-flex align-items-center mb-1">
+//                     <UserAvatar user={comment.user} size={25} />
+//                     <strong className="ms-2">{comment.user?.name || "Anonymous"}</strong>
+//                   </div>
+//                   <p className="mb-0 ps-5">{comment.text}</p>
+//                 </div>
+//               )) : <p>No comments yet. Be the first to comment!</p>}
+//             </div>
+//           </div>
+//         )}
+//       </div>
+
+//       <RelatedNews articles={relatedNews} currentArticleId={article._id} />
+//     </Container>
+//   );
+// };
+
+// export default NewsDetailPage;
+
+
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom"; 
 import {
   getNewsById,
   addLikeToNews,
@@ -617,47 +1268,38 @@ const MediaRenderer = ({ mediaItem }) => {
   }
 };
 
-// **नया हेल्पर फंक्शन**: यह फंक्शन HTML स्ट्रिंग से इमेज के साइज से जुड़े
+// नया हेल्पर फंक्शन: यह फंक्शन HTML स्ट्रिंग से इमेज के साइज से जुड़े
 // एट्रिब्यूट्स (width, height) और इनलाइन स्टाइल्स को हटाएगा.
 // ताकि CSS पूरी तरह से इमेज को रिस्पॉन्सिव बना सके.
 const cleanHtmlForImages = (htmlString) => {
   if (!htmlString) return '';
 
-  // DOMParser का उपयोग करके HTML स्ट्रिंग को पार्स करें
-  // यह ब्राउज़र के वातावरण में काम करेगा
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
 
-  // सभी <img> टैग्स को ढूंढें
   const images = doc.querySelectorAll('img');
 
   images.forEach(img => {
-    // hardcoded width और height एट्रिब्यूट्स को हटा दें
     img.removeAttribute('width');
     img.removeAttribute('height');
 
-    // इनलाइन width और height स्टाइल्स को हटा दें
-    // उदाहरण: <img style="width: 500px; height: 300px;"> से width और height हटाना
     if (img.style.width) {
-      img.style.width = ''; // इनलाइन स्टाइल से width को खाली करें
+      img.style.width = ''; 
     }
     if (img.style.height) {
-      img.style.height = ''; // इनलाइन स्टाइल से height को खाली करें
+      img.style.height = ''; 
     }
-    // आप चाहें तो अन्य संभावित इनलाइन स्टाइल्स को भी यहाँ हटा सकते हैं
-    // जैसे कि max-width, min-width, आदि, यदि वे समस्या पैदा कर रहे हों.
   });
 
-  // साफ की हुई HTML स्ट्रिंग को वापस लौटाएं
   return doc.body.innerHTML;
 };
 
 
 const NewsDetailPage = () => {
   const { slugId } = useParams();
-  // Ensure newsId is extracted correctly
   const newsId = slugId ? slugId.split("-").pop() : null; 
   const location = useLocation();
+  const navigate = useNavigate(); // useNavigate hook
 
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -672,7 +1314,6 @@ const NewsDetailPage = () => {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // क्लीन किए गए HTML कंटेंट के लिए नया स्टेट
   const [cleanedArticleContent, setCleanedArticleContent] = useState('');
 
 
@@ -684,7 +1325,7 @@ const NewsDetailPage = () => {
   };
 
  useEffect(() => {
-  if (!newsId) { // slugId के बजाय newsId चेक करें
+  if (!newsId) {
       setLoading(false);
       setError("News ID not found in URL.");
       return;
@@ -695,32 +1336,31 @@ const NewsDetailPage = () => {
       setLoading(true);
       setArticle(null);
       setError(null);
-      setCleanedArticleContent(''); // कंटेंट लोड होने से पहले इसे रीसेट करें
+      setCleanedArticleContent(''); 
       window.scrollTo(0, 0);
 
-      const articleRes = await getNewsById(newsId);
+      const articleRes = await getNewsById(newsId); // getNewsById अब टोकन भेजेगा
+      console.log("News Detail - getNewsById API Response:", articleRes); // डीबग के लिए
+
       if (!articleRes.success) throw new Error(articleRes.message || "Failed to fetch article");
 
       const currentArticle = articleRes.data || {};
       setArticle(currentArticle);
-      setLikeCount(currentArticle.likesCount || 0);
-      setCommentCount(currentArticle.commentsCount || 0);
-      setComments(currentArticle.comments || []);
-      setIsLiked(currentArticle.isLiked || false);
+      setLikeCount(currentArticle.likesCount || 0); // API से likesCount प्राप्त करें
+      setCommentCount(currentArticle.commentsCount || 0); // API से commentsCount प्राप्त करें
+      setComments(currentArticle.comments || []); // API से comments array प्राप्त करें
+      setIsLiked(currentArticle.isLiked || false); // API से isLiked स्टेटस प्राप्त करें
 
-      // **यहाँ पर कंटेंट को क्लीन करें और स्टेट में सेट करें**
       if (currentArticle.content_hi) {
         setCleanedArticleContent(cleanHtmlForImages(currentArticle.content_hi));
       }
 
       let related = [];
 
-      // 1️⃣ Option 1: location.state
       const relatedFromState = location.state?.relatedArticles?.filter(item => item._id !== currentArticle._id);
       if (relatedFromState?.length > 0) {
         related = relatedFromState;
       } 
-      // 2️⃣ Option 2: category-based
       else if (currentArticle.category?._id) {
         const allNewsRes = await allNews();
         if (allNewsRes.success) {
@@ -728,7 +1368,6 @@ const NewsDetailPage = () => {
             item => item._id !== currentArticle._id && item.category?._id === currentArticle.category._id
           );
           if (categoryNews.length > 0) related = categoryNews;
-          // 3️⃣ Option 3: Tag/Author/Trending fallback
           else {
             const fallbackNews = allNewsRes.data
               .filter(item => item._id !== currentArticle._id)
@@ -738,7 +1377,6 @@ const NewsDetailPage = () => {
           }
         }
       } 
-      // 3️⃣ Option 3: if no category
       else {
         const allNewsRes = await allNews();
         if (allNewsRes.success) {
@@ -753,47 +1391,97 @@ const NewsDetailPage = () => {
       setRelatedNews(related);
 
     } catch (err) {
+      console.error("Error fetching article details and related news:", err);
       setError(err.message || "A network error occurred.");
+      // यदि प्रारंभिक डेटा फ़ेच करने में ऑथेंटिकेशन एरर आता है
+      if (String(err).includes("401") || String(err).includes("403")) {
+        alert("Please log in to view article details.");
+        navigate('/login');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   fetchArticleAndRelated();
-}, [newsId, location.state]); // useEffect dependency array में slugId के बजाय newsId का उपयोग करें
+}, [newsId, location.state, navigate]); // navigate को dependency array में जोड़ा गया
 
 
-  const handleLikeClick = async () => {
-    if (!article) return;
-    try {
-      const res = await addLikeToNews(article._id);
-      if (res.success) {
-        if (isLiked) {
-          setIsLiked(false);
-          setLikeCount(prev => prev - 1);
-        } else {
-          setIsLiked(true);
-          setLikeCount(prev => prev + 1);
-        }
+const handleLikeClick = async () => {
+  if (!article) return;
+
+  // UI ko instantly reflect karne ke liye optimistic update
+  const prevLiked = isLiked;
+  const prevCount = likeCount;
+
+  setIsLiked(!prevLiked);
+  setLikeCount(prevLiked ? prevCount - 1 : prevCount + 1);
+
+  try {
+    const res = await addLikeToNews(article._id);
+    console.log("Like API Response:", res);
+
+    if (res.success) {
+      // Agar backend updated likes bhejta hai, to wo UI me sync kar do
+      if (typeof res.totalLikes === "number") {
+        setLikeCount(res.totalLikes);
       }
-    } catch (err) {
-      console.error("Like error:", err);
+      if (typeof res.isLiked === "boolean") {
+        setIsLiked(res.isLiked);
+      }
+    } else {
+      // Agar backend se error aaya to old state restore kar do
+      alert(res.message || "Failed to like the article.");
+      setIsLiked(prevLiked);
+      setLikeCount(prevCount);
     }
-  };
+  } catch (err) {
+    console.error("Like error:", err);
+
+    // Authentication error hone par restore + redirect
+    setIsLiked(prevLiked);
+    setLikeCount(prevCount);
+
+    if (String(err).includes("401") || String(err).includes("403")) {
+      alert("Please log in to like this article.");
+      navigate("/login");
+    } else {
+      alert(err.message || "Failed to like the article.");
+    }
+  }
+};
+
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || !article) return;
     setIsSubmitting(true);
     try {
-      const res = await addCommentToNews(article._id, { text: newComment });
+      const res = await addCommentToNews(article._id, { text: newComment }); // addCommentToNews अब टोकन भेजेगा
+      console.log("Comment API Response:", res); // डीबग के लिए
+
       if (res.success) {
-        setComments(res.data.comments || []);
-        setCommentCount(res.data.commentsCount || commentCount);
+        // API प्रतिक्रिया से comments और commentsCount को अपडेट करें
+        if (res.comment) { // यदि API एक नया कमेंट ऑब्जेक्ट लौटाता है
+            setComments(prevComments => [...prevComments, res.comment]);
+            setCommentCount(res.commentsCount !== undefined ? res.commentsCount : (comments.length + 1));
+        } else if (res.data && res.data.comments) { // यदि API सभी कमेंट्स का ऐरे लौटाता है
+            setComments(res.data.comments || []);
+            setCommentCount(res.data.commentsCount !== undefined ? res.data.commentsCount : commentCount);
+        }
         setNewComment("");
+      } else {
+        alert(res.message || "Failed to add comment.");
       }
     } catch (err) {
       console.error("Comment error:", err);
+      // यदि यूजर लॉग इन नहीं है या कोई ऑथेंटिकेशन त्रुटि है तो लॉगिन पेज पर रीडायरेक्ट करें
+      if (String(err).includes("401") || String(err).includes("403")) {
+        alert("Please log in to comment on this article.");
+        navigate('/login'); // Redirect to login
+      } else {
+        alert(err.message || "Failed to add comment.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -802,7 +1490,7 @@ const NewsDetailPage = () => {
   const handleShareClick = async () => {
     if (!article) return;
     const shareData = {
-      title: article.title_en,
+      title: article.title_hi, // हिंदी टाइटल का उपयोग
       text: article.content_hi?.slice(0, 100),
       url: window.location.href,
     };
@@ -845,18 +1533,19 @@ const NewsDetailPage = () => {
           <small className="ms-2 text-muted">{article.createdBy?.name || "EMS"} | {formatFullDateTime(article.createdAt)}</small>
         </div>
 
-        {/* **यहाँ dangerouslySetInnerHTML में क्लीन किए गए कंटेंट का उपयोग करें** */}
         <div className="article-content mb-3" style={{ fontSize: "1rem", lineHeight: "1.7", whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: cleanedArticleContent }}></div>
 
         <div className="d-flex flex-wrap align-items-center gap-3 mt-3 pt-2 border-top">
+          {/* Like Icon - अब API प्रतिक्रिया के आधार पर लाल होगा */}
           <div onClick={handleLikeClick} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
             <i className={`fs-5 bi ${isLiked ? "bi-hand-thumbs-up-fill text-danger" : "bi-hand-thumbs-up"}`}></i>
             <span>{likeCount}</span>
           </div>
 
-          <div onClick={() => setShowComments(!showComments)} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
+          {/* Comment Icon - अब नीला होगा */}
+          <div onClick={() => setShowComments(!showComments)} className="d-flex align-items-center gap-2 text-primary" style={{ cursor: "pointer" }}> 
             <i className="bi bi-chat-dots fs-5"></i>
-            <span>{commentCount}</span>
+            <span>{comments.length}</span> {/* comments.length का उपयोग करें */}
           </div>
 
           <div onClick={handleShareClick} className="d-flex align-items-center gap-2 text-muted" style={{ cursor: "pointer" }}>
@@ -874,7 +1563,7 @@ const NewsDetailPage = () => {
 
         {showComments && (
           <div className="mt-4 border-top pt-3">
-            <h4 className="mb-3">Comments ({commentCount})</h4>
+            <h4 className="mb-3">Comments ({comments.length})</h4> {/* comments.length का उपयोग करें */}
             <form onSubmit={handleCommentSubmit} className="d-flex flex-column flex-md-row gap-2 mb-4">
               <input type="text" className="form-control" placeholder="Write a comment..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isSubmitting} />
               <button type="submit" className="btn btn-primary" disabled={isSubmitting || !newComment.trim()}>{isSubmitting ? "..." : "Post"}</button>
@@ -894,7 +1583,6 @@ const NewsDetailPage = () => {
         )}
       </div>
 
-      {/* Related News */}
       <RelatedNews articles={relatedNews} currentArticleId={article._id} />
     </Container>
   );
