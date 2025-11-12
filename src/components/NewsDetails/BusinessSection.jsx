@@ -741,12 +741,326 @@
 // export default BusinessSection;
 
 
+// import React, { useEffect, useState } from "react";
+// import { Container, Row, Col, Image, Spinner, Alert } from "react-bootstrap";
+// import { FaArrowRight } from "react-icons/fa";
+// import { allNews } from "../../Services/authApi";
+// import { Link } from "react-router-dom";
+// import UserAvatar from "../Main_NewsDetails/UserAvatar";
+
+// const BusinessSection = () => {
+//   const [newsData, setNewsData] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchNews = async () => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const res = await allNews();
+//         if (res?.success) {
+//           const businessNews = res?.data?.filter(
+//             (item) =>
+//               item?.category?.name?.toLowerCase() === "business" ||
+//               item?.category?.name === "बिज़नेस"
+//           );
+//           setNewsData(businessNews || []);
+//         } else {
+//           setError(res?.message || "Failed to load business news.");
+//         }
+//       } catch (err) {
+//         setError(err.message || "An error occurred while fetching business news.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchNews();
+//   }, []);
+
+//   // ✅ Proper Date-Time Formatter with Safe Checks
+//   const formatDateTime = (item) => {
+//     const rawDate = item?.publishedAt || item?.createdAt;
+//     console.log("🕒 Article Date =>", rawDate);
+
+//     if (!rawDate) return "समय उपलब्ध नहीं";
+//     const dateObj = new Date(rawDate);
+//     if (isNaN(dateObj)) return "Invalid Date";
+
+//     return dateObj.toLocaleString("hi-IN", {
+//       day: "2-digit",
+//       month: "2-digit",
+//       year: "numeric",
+//       hour: "2-digit",
+//       minute: "2-digit",
+//       hour12: true,
+//     });
+//   };
+
+//   if (loading) {
+//     return (
+//       <div className="text-center my-4">
+//         <Spinner animation="border" variant="primary" />
+//         <p className="mt-2">बिज़नेस समाचार लोड हो रहे हैं...</p>
+//       </div>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <Alert variant="danger" className="my-4">
+//         त्रुटि: {error}
+//         <p>कृपया सुनिश्चित करें कि API सही ढंग से चल रहा है और डेटा प्रदान कर रहा है।</p>
+//       </Alert>
+//     );
+//   }
+
+//   if (newsData?.length === 0) {
+//     return (
+//       <Container fluid className="mt-4">
+//         <div className="d-flex align-items-center mb-3">
+//           <div className="d-flex align-items-center flex-shrink-0">
+//             <div
+//               style={{ width: "5px", height: "24px", backgroundColor: "#A12D2A" }}
+//               className="me-2"
+//             ></div>
+//             <h5 className="fw-bold m-0">बिज़नेस</h5>
+//           </div>
+//           <hr
+//             className="flex-grow-1 mx-3"
+//             style={{ borderTop: `2px solid #A12D2A`, opacity: 1 }}
+//           />
+//           <Link
+//             to="/category/Business"
+//             className="text-decoration-none fw-bold small flex-shrink-0"
+//             style={{ color: "#005f8bff" }}
+//           >
+//             और पढ़ें <FaArrowRight size={12} />
+//           </Link>
+//         </div>
+//         <Alert variant="info" className="my-4">
+//           कोई बिज़नेस समाचार उपलब्ध नहीं है।
+//         </Alert>
+//       </Container>
+//     );
+//   }
+
+//   const mainArticle = newsData?.[0];
+//   const bottomArticle = newsData?.[1];
+//   const sideArticles = newsData?.slice(2, 6);
+
+//   const linkStyle = { textDecoration: "none", color: "inherit" };
+//   const accentColor = "#A12D2A";
+//   const linkColor = "#005f8bff";
+
+//   return (
+//     <Container fluid className="mt-4">
+//       <div className="d-flex align-items-center mb-3">
+//         <div className="d-flex align-items-center flex-shrink-0">
+//           <div
+//             style={{ width: "5px", height: "24px", backgroundColor: accentColor }}
+//             className="me-2"
+//           ></div>
+//           <h5 className="fw-bold m-0">बिज़नेस</h5>
+//         </div>
+//         <hr
+//           className="flex-grow-1 mx-3"
+//           style={{ borderTop: `2px solid ${accentColor}`, opacity: 1 }}
+//         />
+//         <Link
+//           to="/category/Business"
+//           className="text-decoration-none fw-bold small flex-shrink-0"
+//           style={{ color: linkColor }}
+//         >
+//           और पढ़ें <FaArrowRight size={12} />
+//         </Link>
+//       </div>
+
+//       <Row>
+//         {/* ==== Main Article ==== */}
+//         <Col lg={7} className="mb-4 mb-lg-0 d-flex flex-column">
+//           {mainArticle && (
+//             <Link
+//               to={`/news/${mainArticle?.slug_en || mainArticle?._id}`}
+//               state={{ relatedArticles: newsData }}
+//               style={linkStyle}
+//               className="d-block position-relative mb-4 flex-grow-1"
+//             >
+//               <Image
+//                 src={
+//                   mainArticle?.media?.[0]?.url ||
+//                   "https://via.placeholder.com/600x400"
+//                 }
+//                 className="rounded w-100"
+//                 style={{ objectFit: "cover", height: "320px" }}
+//               />
+//               <div
+//                 className="position-absolute bottom-0 start-0 text-white w-100 p-3"
+//                 style={{
+//                   background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+//                   borderRadius: "0 0 var(--bs-border-radius) var(--bs-border-radius)",
+//                 }}
+//               >
+//                 <h5 className="fw-bold text-wrap">
+//                   {mainArticle?.title_hi || mainArticle?.title_en}
+//                 </h5>
+//                 <small className="d-block text-light">
+//                   {mainArticle?.createdBy?.name || "EMS News"} |{" "}
+//                   {formatDateTime(mainArticle)}
+//                 </small>
+//               </div>
+//             </Link>
+//           )}
+
+//           {/* ==== Bottom Article ==== */}
+//           {bottomArticle && (
+//             <Link
+//               to={`/news/${bottomArticle?.slug_en || bottomArticle?._id}`}
+//               state={{ relatedArticles: newsData }}
+//               style={linkStyle}
+//             >
+//               <Row className="align-items-center">
+//                 <Col xs={4} sm={3}>
+//                   <Image
+//                     src={
+//                       bottomArticle?.media?.[0]?.url ||
+//                       "https://via.placeholder.com/120x80"
+//                     }
+//                     fluid
+//                     rounded
+//                     style={{ height: "80px", objectFit: "cover", width: "100%" }}
+//                   />
+//                 </Col>
+//                 <Col xs={8} sm={9} className="ps-2">
+//                   <p className="fw-bold mb-1 text-wrap">
+//                     {bottomArticle?.title_hi || bottomArticle?.title_en}
+//                   </p>
+//                   <p className="text-muted small m-0">
+//                     {bottomArticle?.createdBy?.name || "EMS News"} |{" "}
+//                     {formatDateTime(bottomArticle)}
+//                   </p>
+//                 </Col>
+//               </Row>
+//             </Link>
+//           )}
+//         </Col>
+
+//         {/* ==== Side Articles ==== */}
+//         <Col lg={5}>
+//           {sideArticles?.map((article, index) => (
+//             <React.Fragment key={article?._id || index}>
+//               <Link
+//                 to={`/news/${article?.slug_en || article?._id}`}
+//                 state={{ relatedArticles: newsData }}
+//                 style={linkStyle}
+//               >
+//                 <Row className="align-items-center">
+//                   <Col xs={4}>
+//                     <Image
+//                       src={
+//                         article?.media?.[0]?.url ||
+//                         "https://via.placeholder.com/120x80"
+//                       }
+//                       fluid
+//                       rounded
+//                       style={{ height: "80px", objectFit: "cover", width: "100%" }}
+//                     />
+//                   </Col>
+//                   <Col xs={8} className="ps-2">
+//                     <p
+//                       className="fw-bold mb-1 text-wrap"
+//                       style={{ fontSize: "0.9rem", lineHeight: "1.4" }}
+//                     >
+//                       {article?.title_hi || article?.title_en}
+//                     </p>
+//                     <p className="text-muted small m-0">
+//                       {article?.createdBy?.name || "EMS News"} |{" "}
+//                       {formatDateTime(article)}
+//                     </p>
+//                   </Col>
+//                 </Row>
+//               </Link>
+//               {index < sideArticles.length - 1 && <hr className="my-3" />}
+//             </React.Fragment>
+//           ))}
+//         </Col>
+//       </Row>
+//     </Container>
+//   );
+// };
+
+// export default BusinessSection;
+
+
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Image, Spinner, Alert } from "react-bootstrap";
 import { FaArrowRight } from "react-icons/fa";
 import { allNews } from "../../Services/authApi";
 import { Link } from "react-router-dom";
 import UserAvatar from "../Main_NewsDetails/UserAvatar";
+
+// Media Renderer Helper Component (जैसा कि अन्य कॉम्पोनेन्ट्स में उपयोग किया गया है)
+const MediaRenderer = ({ media, alt, width, height, objectFit = "cover", borderRadius = "8px" }) => {
+  const firstMedia = media?.[0];
+  const isVideo = firstMedia && firstMedia.type === 'video';
+  const mediaUrl = firstMedia?.url;
+
+  const commonStyles = {
+    width: width,
+    height: height,
+    objectFit: objectFit,
+    borderRadius: borderRadius,
+    backgroundColor: "#e0e0e0", // Empty/error states के लिए consistent background
+    display: "block",
+    position: "relative",
+    zIndex: 0,
+  };
+
+  if (isVideo) {
+    if (mediaUrl) {
+      return (
+        <video
+          src={mediaUrl}
+          width={width}
+          height={height}
+          controls={false}
+          autoPlay
+          muted
+          loop
+          style={commonStyles}
+        >
+          Your browser does not support the video tag.
+        </video>
+      );
+    } else {
+      const placeholderWidth = parseInt(width) || 150;
+      const placeholderHeight = parseInt(height) || 90;
+      return (
+        <Image
+          src={`https://via.placeholder.com/${placeholderWidth}x${placeholderHeight}?text=VIDEO+URL+MISSING`}
+          alt={alt}
+          style={commonStyles}
+        />
+      );
+    }
+  } else {
+    const imageSrc = mediaUrl || `https://via.placeholder.com/${parseInt(width) || 150}x${parseInt(height) || 90}?text=No+Media`;
+    return (
+      <Image
+        src={imageSrc}
+        alt={alt}
+        style={commonStyles}
+        onError={(e) => {
+          const placeholderWidth = parseInt(width) || 150;
+          const placeholderHeight = parseInt(height) || 90;
+          e.target.src = `https://via.placeholder.com/${placeholderWidth}x${placeholderHeight}?text=Error`;
+          console.error("Image failed to load:", e.target.src);
+        }}
+      />
+    );
+  }
+};
+
 
 const BusinessSection = () => {
   const [newsData, setNewsData] = useState([]);
@@ -778,14 +1092,11 @@ const BusinessSection = () => {
     fetchNews();
   }, []);
 
-  // ✅ Proper Date-Time Formatter with Safe Checks
-  const formatDateTime = (item) => {
-    const rawDate = item?.publishedAt || item?.createdAt;
-    console.log("🕒 Article Date =>", rawDate);
-
-    if (!rawDate) return "समय उपलब्ध नहीं";
-    const dateObj = new Date(rawDate);
-    if (isNaN(dateObj)) return "Invalid Date";
+  // ✅ Consistent Date-Time Formatter (24-hour format)
+  const formatFullDateTime = (dateString) => {
+    if (!dateString) return "समय उपलब्ध नहीं";
+    const dateObj = new Date(dateString);
+    if (isNaN(dateObj.getTime())) return "Invalid Date"; // Use getTime() for robust check
 
     return dateObj.toLocaleString("hi-IN", {
       day: "2-digit",
@@ -793,7 +1104,7 @@ const BusinessSection = () => {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
+      hourCycle: 'h23', // Ensure 24-hour format
     });
   };
 
@@ -886,13 +1197,14 @@ const BusinessSection = () => {
               style={linkStyle}
               className="d-block position-relative mb-4 flex-grow-1"
             >
-              <Image
-                src={
-                  mainArticle?.media?.[0]?.url ||
-                  "https://via.placeholder.com/600x400"
-                }
-                className="rounded w-100"
-                style={{ objectFit: "cover", height: "320px" }}
+              {/* MediaRenderer for Main Article */}
+              <MediaRenderer
+                media={mainArticle?.media}
+                alt={mainArticle?.title_hi || mainArticle?.title_en || "Business News"}
+                width="100%"
+                height="320px" // Main article के लिए ऊंचाई बरकरार
+                objectFit="cover"
+                borderRadius="8px"
               />
               <div
                 className="position-absolute bottom-0 start-0 text-white w-100 p-3"
@@ -906,7 +1218,7 @@ const BusinessSection = () => {
                 </h5>
                 <small className="d-block text-light">
                   {mainArticle?.createdBy?.name || "EMS News"} |{" "}
-                  {formatDateTime(mainArticle)}
+                  {formatFullDateTime(mainArticle?.publishedAt || mainArticle?.createdAt)} {/* formatFullDateTime का उपयोग करें */}
                 </small>
               </div>
             </Link>
@@ -920,24 +1232,24 @@ const BusinessSection = () => {
               style={linkStyle}
             >
               <Row className="align-items-center">
-                <Col xs={4} sm={3}>
-                  <Image
-                    src={
-                      bottomArticle?.media?.[0]?.url ||
-                      "https://via.placeholder.com/120x80"
-                    }
-                    fluid
-                    rounded
-                    style={{ height: "80px", objectFit: "cover", width: "100%" }}
+                <Col xs={4} sm={3}> {/* Col sizes adjusted for consistency */}
+                  {/* MediaRenderer for Bottom Article */}
+                  <MediaRenderer
+                    media={bottomArticle?.media}
+                    alt={bottomArticle?.title_hi || bottomArticle?.title_en || "Business News"}
+                    width="100%"
+                    height="90px" // RelatedNews के समान ऊंचाई
+                    objectFit="cover"
+                    borderRadius="8px"
                   />
                 </Col>
-                <Col xs={8} sm={9} className="ps-2">
+                <Col xs={8} sm={9} className="ps-2"> {/* Col sizes adjusted for consistency */}
                   <p className="fw-bold mb-1 text-wrap">
                     {bottomArticle?.title_hi || bottomArticle?.title_en}
                   </p>
                   <p className="text-muted small m-0">
                     {bottomArticle?.createdBy?.name || "EMS News"} |{" "}
-                    {formatDateTime(bottomArticle)}
+                    {formatFullDateTime(bottomArticle?.publishedAt || bottomArticle?.createdAt)} {/* formatFullDateTime का उपयोग करें */}
                   </p>
                 </Col>
               </Row>
@@ -955,18 +1267,18 @@ const BusinessSection = () => {
                 style={linkStyle}
               >
                 <Row className="align-items-center">
-                  <Col xs={4}>
-                    <Image
-                      src={
-                        article?.media?.[0]?.url ||
-                        "https://via.placeholder.com/120x80"
-                      }
-                      fluid
-                      rounded
-                      style={{ height: "80px", objectFit: "cover", width: "100%" }}
+                  <Col xs={4}> {/* Col size consistent for side articles */}
+                    {/* MediaRenderer for Side Articles */}
+                    <MediaRenderer
+                      media={article?.media}
+                      alt={article?.title_hi || article?.title_en || "Business News"}
+                      width="100%"
+                      height="90px" // RelatedNews के समान ऊंचाई
+                      objectFit="cover"
+                      borderRadius="8px"
                     />
                   </Col>
-                  <Col xs={8} className="ps-2">
+                  <Col xs={8} className="ps-2"> {/* Col size consistent for side articles */}
                     <p
                       className="fw-bold mb-1 text-wrap"
                       style={{ fontSize: "0.9rem", lineHeight: "1.4" }}
@@ -975,7 +1287,7 @@ const BusinessSection = () => {
                     </p>
                     <p className="text-muted small m-0">
                       {article?.createdBy?.name || "EMS News"} |{" "}
-                      {formatDateTime(article)}
+                      {formatFullDateTime(article?.publishedAt || article?.createdAt)} {/* formatFullDateTime का उपयोग करें */}
                     </p>
                   </Col>
                 </Row>

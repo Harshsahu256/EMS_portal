@@ -127,8 +127,9 @@
   
 
   
-export const API_BASE_URL = "https://117pw42t-8004.inc1.devtunnels.ms/api/v1/user";
+// export const API_BASE_URL = "https://117pw42t-8004.inc1.devtunnels.ms/api/v1/user";
 
+ export const API_BASE_URL = "https://newsapp.aasmo.in/api/v1/user";
 
 export const API_END_POINT = {
     LOGIN: `${API_BASE_URL}/login`,
@@ -161,3 +162,6 @@ export const API_END_POINT = {
     LIKE_VIDEO: (videoId) => `${API_BASE_URL}/videos/${videoId}/like`,
     COMMENT_ON_VIDEO: (videoId) => `${API_BASE_URL}/videos/${videoId}/comment`,
 };
+
+
+

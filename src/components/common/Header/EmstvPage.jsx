@@ -1,382 +1,112 @@
-
-// import React, { useState, useEffect } from "react";
-// import { Container, Row, Col, Spinner, Image, Button } from "react-bootstrap";
-// import { FaPlayCircle } from "react-icons/fa";
-// import { getVideo } from "../../../Services/authApi";
-// import { useNavigate } from "react-router-dom";
-
-// const VideoCard = ({ thumbnail, onClick, title }) => (
-//   <div
-//     className="position-relative mb-3 shadow-sm"
-//     onClick={onClick}
-//     style={{
-//       cursor: "pointer",
-//       borderRadius: "10px",
-//       overflow: "hidden",
-//       transition: "transform 0.2s ease-in-out",
-//     }}
-//   >
-//     <div style={{ position: "relative", width: "100%", paddingTop: "56.25%" }}>
-//       <Image
-//         src={thumbnail}
-//         alt="Video Thumbnail"
-//         fluid
-//         style={{
-//           position: "absolute",
-//           top: 0,
-//           left: 0,
-//           width: "100%",
-//           height: "100%",
-//           objectFit: "cover",
-//           objectPosition: "center",
-//           filter: "brightness(85%)",
-//         }}
-//       />
-//       <FaPlayCircle
-//         color="#ffffff"
-//         size={36}
-//         className="position-absolute top-50 start-50 translate-middle"
-//         style={{
-//           opacity: 0.9,
-//           filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))",
-//         }}
-//       />
-//     </div>
-//     <div className="p-2 fw-bold text-truncate">{title}</div>
-//   </div>
-// );
-
-// const EmstvPage = () => {
-//   const [videos, setVideos] = useState([]);
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [selectedCategory, setSelectedCategory] = useState("All");
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     window.scrollTo(0, 0); // Scroll to top when component mounts
-//     getVideo()
-//       .then((res) => {
-//         const data = res?.data || [];
-//         setVideos(data);
-//       })
-//       .catch((err) => {
-//         setError("Failed to load videos");
-//         console.error(err);
-//       })
-//       .finally(() => setIsLoading(false));
-//   }, []);
-
-//   // Unique categories निकालो
-//   const categories = ["All", ...new Set(videos.map((v) => v.category_name))];
-
-//   // Selected category की videos
-//   const filteredVideos =
-//     selectedCategory === "All"
-//       ? videos
-//       : videos.filter((v) => v.category_name === selectedCategory);
-
-//   const getThumbnailUrl = (url) => {
-//     if (!url) return "";
-//     let videoId = "";
-//     if (url.includes("youtu.be")) videoId = url.split("/").pop().split("?")[0];
-//     else if (url.includes("youtube.com/watch"))
-//       videoId = new URL(url).searchParams.get("v");
-//     return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
-//   };
-
-//   if (isLoading)
-//     return (
-//       <div className="text-center my-4">
-//         <Spinner animation="border" size="sm" />
-//       </div>
-//     );
-//   if (error) return <div className="text-center text-danger my-4">{error}</div>;
-
-//   return (
-//     <Container className="mt-4">
-//       {/* EMS TV Heading */}
-//       <div className="d-flex align-items-center mb-3 flex-wrap">
-//         <div className="d-flex align-items-center flex-shrink-0 mb-2 mb-sm-0">
-//           <div
-//             style={{ width: "7px", height: "35px", backgroundColor: "#C00000" }}
-//             className="me-2"
-//           ></div>
-//           <h2 className="fw-bold m-0">EMS TV</h2>
-//         </div>
-//         <hr className="flex-grow-1 mx-2 mx-sm-3 border-danger border-2 opacity-100 my-0" />
-//       </div>
-
-//       {/* ✅ Categories Tabs */}
-//       <div className="d-flex flex-wrap gap-2 mb-3">
-//         {categories.map((cat) => (
-//           <Button
-//             key={cat}
-//             variant={selectedCategory === cat ? "danger" : "outline-danger"}
-//             size="sm"
-//             onClick={() => setSelectedCategory(cat)}
-//           >
-//             {cat}
-//           </Button>
-//         ))}
-//       </div>
-
-//       {/* ✅ Videos Grid */}
-//       <Row className="g-3">
-//         {filteredVideos.map((video) => (
-//           <Col key={video._id} xs={12} sm={6} md={4} lg={3}>
-//             <VideoCard
-//               thumbnail={getThumbnailUrl(video.videoUrl)}
-//               title={video.title}
-//               onClick={() => {
-//                 navigate(`/video/${video._id}`, {
-//                   state: { videos, currentVideo: video },
-//                 });
-//                 window.scrollTo({ top: 0, behavior: "smooth" });
-//               }}
-//             />
-//           </Col>
-//         ))}
-//       </Row>
-//     </Container>
-//   );
-// };
-
-// export default EmstvPage;
-
-
-// import React, { useState, useEffect } from "react";
-// import { Container, Row, Col, Spinner, Image, Button } from "react-bootstrap";
-// import { FaPlayCircle } from "react-icons/fa";
-// import { getVideo } from "../../../Services/authApi";
-// import { useNavigate } from "react-router-dom";
-// const VideoCard = ({ thumbnail, onClick, title }) => (
-//   <div className="mb-3">
-//     {/* Card with cropped image */}
-//     <div
-//       className="position-relative shadow-sm video-card"
-//       onClick={onClick}
-//       style={{
-//         cursor: "pointer",
-//         overflow: "hidden", // crop top/bottom
-//         transition: "transform 0.2s ease-in-out",
-//         backgroundColor: "#000",
-//         height: "180px", // card height
-//       }}
-//     >
-//       <Image
-//         src={thumbnail}
-//         alt={title}
-//         fluid
-//         style={{
-//           width: "100%",
-//           height: "100%",
-//           objectFit: "cover",
-//           objectPosition: "center",
-//           filter: "brightness(85%)",
-//         }}
-//       />
-//       <FaPlayCircle
-//         color="#ffffff"
-//         size={36}
-//         className="position-absolute top-50 start-50 translate-middle"
-//         style={{
-//           opacity: 0.9,
-//           filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))",
-//         }}
-//       />
-//     </div>
-
-//     {/* Title below card */}
-//     <p
-//       className="mt-2 mb-0 fw-bold text-truncate text-center"
-//       style={{ color: "red", fontSize: "0.95rem" }}
-//       title={title} // hover pe full title
-//     >
-//       {title}
-//     </p>
-//   </div>
-// );
-
-
-// const EmstvPage = () => {
-//   const [videos, setVideos] = useState([]);
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [selectedCategory, setSelectedCategory] = useState("All");
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     window.scrollTo(0, 0); // Scroll to top when component mounts
-//     getVideo()
-//       .then((res) => {
-//         const data = res?.data || [];
-//         setVideos(data);
-//       })
-//       .catch((err) => {
-//         setError("Failed to load videos");
-//         console.error(err);
-//       })
-//       .finally(() => setIsLoading(false));
-//   }, []);
-
-//   // Unique categories निकालो
-//   const categories = ["All", ...new Set(videos.map((v) => v.category_name))];
-
-//   // Selected category की videos
-//   const filteredVideos =
-//     selectedCategory === "All"
-//       ? videos
-//       : videos.filter((v) => v.category_name === selectedCategory);
-
-//   const getThumbnailUrl = (url) => {
-//     if (!url) return "";
-//     let videoId = "";
-//     if (url.includes("youtu.be")) videoId = url.split("/").pop().split("?")[0];
-//     else if (url.includes("youtube.com/watch"))
-//       videoId = new URL(url).searchParams.get("v");
-//     return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
-//   };
-
-//   if (isLoading)
-//     return (
-//       <div className="text-center my-4">
-//         <Spinner animation="border" size="sm" />
-//       </div>
-//     );
-//   if (error) return <div className="text-center text-danger my-4">{error}</div>;
-
-//   return (
-//     <Container className="mt-4">
-//       {/* EMS TV Heading */}
-//       <div className="d-flex align-items-center mb-3 flex-wrap">
-//         <div className="d-flex align-items-center flex-shrink-0 mb-2 mb-sm-0">
-//           <div
-//             style={{ width: "7px", height: "35px", backgroundColor: "#C00000" }}
-//             className="me-2"
-//           ></div>
-//           <h2 className="fw-bold m-0">EMS TV</h2>
-//         </div>
-//         <hr className="flex-grow-1 mx-2 mx-sm-3 border-danger border-2 opacity-100 my-0" />
-//       </div>
-
-//       {/* ✅ Categories Tabs */}
-//       <div className="d-flex flex-wrap gap-2 mb-3">
-//         {categories.map((cat) => (
-//           <Button
-//             key={cat}
-//             variant={selectedCategory === cat ? "danger" : "outline-danger"}
-//             size="sm"
-//             onClick={() => setSelectedCategory(cat)}
-//           >
-//             {cat}
-//           </Button>
-//         ))}
-//       </div>
-
-//       {/* ✅ Videos Grid */}
-//       <Row className="g-3">
-//         {filteredVideos.map((video) => (
-//           <Col key={video._id} xs={12} sm={6} md={4} lg={3}>
-//             <VideoCard
-//               thumbnail={getThumbnailUrl(video.videoUrl)}
-//               title={video.title}
-//               onClick={() => {
-//                 navigate(`/video/${video._id}`, {
-//                   state: { videos, currentVideo: video },
-//                 });
-//                 window.scrollTo({ top: 0, behavior: "smooth" });
-//               }}
-//             />
-//           </Col>
-//         ))}
-//       </Row>
-
-//       {/* ✅ Extra Mobile Styling */}
-//       <style>{`
-//         @media (max-width: 576px) {
-//           .video-card {
-//             margin-bottom: 15px;
-//           }
-//           .video-title {
-//             font-size: 14px;
-//             white-space: normal;
-//           }
-//         }
-//       `}</style>
-//     </Container>
-//   );
-// };
-
-// export default EmstvPage;
-
-
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Spinner, Image, Button, Dropdown } from "react-bootstrap";
 import { FaPlayCircle } from "react-icons/fa";
 import { getVideo } from "../../../Services/authApi";
 import { useNavigate } from "react-router-dom";
 
-// VideoCard कॉम्पोनेंट में कोई बदलाव नहीं
-const VideoCard = ({ thumbnail, onClick, title }) => (
-  <div className="mb-3">
-    {/* Card with cropped image */}
-    <div
-      className="position-relative shadow-sm video-card"
-      onClick={onClick}
-      style={{
-        cursor: "pointer",
-        overflow: "hidden", // crop top/bottom
-        transition: "transform 0.2s ease-in-out",
-        backgroundColor: "#000",
-        height: "180px", // card height
-      }}
-    >
-      <Image
-        src={thumbnail}
-        alt={title}
-        fluid
+// Re-using the formatFullDateTime from RelatedNews for consistency (हालांकि इस कंपोनेंट में सीधे उपयोग नहीं किया गया)
+const formatFullDateTime = (dateString) => {
+  if (!dateString) return "समय उपलब्ध नहीं";
+  const options = {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: 'h23',
+  };
+  const dateObj = new Date(dateString);
+  if (isNaN(dateObj)) return "Invalid Date";
+  return dateObj.toLocaleString("hi-IN", options);
+};
+
+// ✅ UPDATED VideoCard कॉम्पोनेंट - यह अब डायरेक्ट वीडियो फाइलें भी चला सकता है
+const VideoCard = ({ mediaSource, onClick, title }) => {
+  // Check if the mediaSource URL is a direct video file (e.g., .mp4, .webm, .ogg, .mov)
+  const isDirectVideoFile = mediaSource.match(/\.(mp4|webm|ogg|mov)$/i);
+
+  return (
+    <div className="mb-3">
+      {/* Card with cropped image/video */}
+      <div
+        className="position-relative shadow-sm video-card"
+        onClick={onClick}
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition: "center",
-          filter: "brightness(85%)",
+          cursor: "pointer",
+          overflow: "hidden",
+          transition: "transform 0.2s ease-in-out",
+          backgroundColor: "#000",
+          height: "180px", // card height
+          borderRadius: "8px", // Consistency: added border radius
         }}
-      />
-      <FaPlayCircle
-        color="#ffffff"
-        size={36}
-        className="position-absolute top-50 start-50 translate-middle"
-        style={{
-          opacity: 0.9,
-          filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))",
-        }}
-      />
+      >
+        {isDirectVideoFile ? (
+          <video
+            src={mediaSource}
+            alt={title || "Video"}
+            className="w-100 h-100" // Use w-100 h-100 to fill container
+            controls={false} // No controls visible in gallery
+            autoPlay // Auto-play the video
+            muted // Mute the video for auto-play
+            loop // Loop the video
+            style={{
+              objectFit: "cover",
+              objectPosition: "center",
+              filter: "brightness(85%)",
+              display: "block",
+            }}
+            onError={(e) => { e.target.src = "https://via.placeholder.com/320x180?text=Error"; console.error("Video failed to load:", e.target.src); }}
+          />
+        ) : (
+          <Image
+            src={mediaSource} // This would be YouTube thumbnail or generic image placeholder
+            alt={title || "Video Thumbnail"}
+            fluid
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              filter: "brightness(85%)",
+              display: "block",
+            }}
+            onError={(e) => { e.target.src = "https://via.placeholder.com/320x180?text=Error"; console.error("Video thumbnail failed to load:", e.target.src); }}
+          />
+        )}
+        <FaPlayCircle
+          color="#ffffff"
+          size={36}
+          className="position-absolute top-50 start-50 translate-middle"
+          style={{
+            opacity: 0.9,
+            filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))",
+          }}
+        />
+      </div>
+
+      {/* Title below card */}
+      <p
+        className="mt-2 mb-0 fw-bold text-truncate text-center"
+        style={{ color: "red", fontSize: "0.95rem" }}
+        title={title} // hover pe full title
+      >
+        {title}
+      </p>
     </div>
-
-    {/* Title below card */}
-    <p
-      className="mt-2 mb-0 fw-bold text-truncate text-center"
-      style={{ color: "red", fontSize: "0.95rem" }}
-      title={title} // hover pe full title
-    >
-      {title}
-    </p>
-  </div>
-);
-
+  );
+};
 
 const EmstvPage = () => {
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth); // ✅ Track screen width
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.scrollTo(0, 0); // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+
     getVideo()
       .then((res) => {
         const data = res?.data || [];
@@ -388,117 +118,77 @@ const EmstvPage = () => {
       })
       .finally(() => setIsLoading(false));
 
-    // ✅ Event listener for window resize to update screenWidth
-    const handleResize = () => {
-      setScreenWidth(window.innerWidth);
-    };
-
+    const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
-    handleResize(); // Initial check
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Unique categories निकालो
   const allCategories = ["All", ...new Set(videos.map((v) => v.category_name))];
 
-  // ✅ Dynamically determine max visible categories based on screen width
   const getMaxVisibleCategories = (width) => {
-    if (width <= 480) { // Very small devices (e.g., small phones)
-      return 2;
-    } else if (width <= 768) { // Small devices (phones, small tablets)
-      return 3;
-    } else if (width <= 992) { // Medium devices (tablets, small laptops)
-      return 4;
-    } else { // Large devices (desktops)
-      return allCategories.length; // Show all
+    if (width <= 480) return 2; if (width <= 768) return 3; if (width <= 992) return 4; return allCategories.length;
+  };
+  const maxVisibleCategories = getMaxVisibleCategories(screenWidth);
+  let visibleCategories = allCategories.slice(0, maxVisibleCategories);
+  let hiddenCategories = allCategories.slice(maxVisibleCategories);
+  const filteredVideos = selectedCategory === "All" ? videos : videos.filter((v) => v.category_name === selectedCategory);
+
+  // ✅ UPDATED getThumbnailOrVideoUrl function - यह डायरेक्ट वीडियो URL भी लौटाता है
+  const getThumbnailOrVideoUrl = (url) => {
+    if (!url) return "https://via.placeholder.com/320x180?text=No+Video";
+    let videoId = "";
+    if (url.includes("youtu.be")) {
+      videoId = url.split("/").pop().split("?")[0];
+    } else if (url.includes("youtube.com/watch")) {
+      videoId = new URL(url).searchParams.get("v");
+    }
+
+    // If it's a YouTube video, return the thumbnail URL
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+    // If it's not a YouTube video (assume direct video URL), return the URL itself.
+    return url;
+  };
+
+  // ✅ handleShare फंक्शन को ज्यों का त्यों रखा गया है, इसमें कोई वीडियो-विशिष्ट बदलाव की आवश्यकता नहीं है
+  const handleShare = async (title, videoId) => {
+    const fullShareUrl = `${window.location.origin}/video/${videoId}`;
+    if (navigator.share) {
+      try { await navigator.share({ title, text: `Check out this video: ${title}`, url: fullShareUrl }); }
+      catch (error) { console.error('Error sharing:', error); }
+    } else {
+      alert(`Please copy this link to share: ${fullShareUrl}`);
     }
   };
 
-  const maxVisibleCategories = getMaxVisibleCategories(screenWidth);
 
-  // ✅ कैटेगरी को स्क्रीन साइज़ के अनुसार मैनेज करें
-  let visibleCategories = allCategories;
-  let hiddenCategories = [];
-
-  if (allCategories.length > maxVisibleCategories) {
-    visibleCategories = allCategories.slice(0, maxVisibleCategories);
-    hiddenCategories = allCategories.slice(maxVisibleCategories);
-  }
-
-  // Selected category की videos
-  const filteredVideos =
-    selectedCategory === "All"
-      ? videos
-      : videos.filter((v) => v.category_name === selectedCategory);
-
-  const getThumbnailUrl = (url) => {
-    if (!url) return "";
-    let videoId = "";
-    if (url.includes("youtu.be")) videoId = url.split("/").pop().split("?")[0];
-    else if (url.includes("youtube.com/watch"))
-      videoId = new URL(url).searchParams.get("v");
-    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
-  };
-
-  if (isLoading)
-    return (
-      <div className="text-center my-4">
-        <Spinner animation="border" size="sm" />
-      </div>
-    );
+  if (isLoading) return <div className="text-center my-4"><Spinner animation="border" size="sm" /></div>;
   if (error) return <div className="text-center text-danger my-4">{error}</div>;
 
   return (
     <Container className="mt-4">
-      {/* EMS TV Heading */}
       <div className="d-flex align-items-center mb-3 flex-wrap">
         <div className="d-flex align-items-center flex-shrink-0 mb-2 mb-sm-0">
-          <div
-            style={{ width: "7px", height: "35px", backgroundColor: "#C00000" }}
-            className="me-2"
-          ></div>
+          <div style={{ width: "7px", height: "35px", backgroundColor: "#C00000" }} className="me-2"></div>
           <h2 className="fw-bold m-0">EMS TV</h2>
         </div>
         <hr className="flex-grow-1 mx-2 mx-sm-3 border-danger border-2 opacity-100 my-0" />
       </div>
 
-      {/* Categories Tabs */}
       <div className="d-flex flex-wrap gap-2 mb-3">
-        {/* Visible Categories */}
         {visibleCategories.map((cat) => (
-          <Button
-            key={cat}
-            variant={selectedCategory === cat ? "danger" : "outline-danger"}
-            size="sm"
-            onClick={() => setSelectedCategory(cat)}
-          >
+          <Button key={cat} variant={selectedCategory === cat ? "danger" : "outline-danger"} size="sm" onClick={() => setSelectedCategory(cat)}>
             {cat}
           </Button>
         ))}
-
-        {/* More Button with Dropdown for hidden categories */}
         {hiddenCategories.length > 0 && (
           <Dropdown>
-            <Dropdown.Toggle
-              variant={selectedCategory && hiddenCategories.includes(selectedCategory) ? "danger" : "outline-danger"}
-              size="sm"
-              id="dropdown-basic"
-              className="ems-dropdown-toggle"
-            >
-              More
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu className="ems-dropdown-menu-custom"> {/* ✅ नया क्लास जोड़ा */}
+            <Dropdown.Toggle variant={hiddenCategories.includes(selectedCategory) ? "danger" : "outline-danger"} size="sm">More</Dropdown.Toggle>
+            <Dropdown.Menu className="rounded shadow-sm border-0 py-1">
               {hiddenCategories.map((cat) => (
-                <Dropdown.Item
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  active={selectedCategory === cat}
-                  className="ems-dropdown-item-custom" // ✅ नया क्लास जोड़ा
-                >
+                <Dropdown.Item key={cat} onClick={() => setSelectedCategory(cat)} className={selectedCategory === cat ? "active bg-danger text-white fw-bold" : "fw-bold"}>
                   {cat}
                 </Dropdown.Item>
               ))}
@@ -507,117 +197,187 @@ const EmstvPage = () => {
         )}
       </div>
 
-      {/* Videos Grid */}
       <Row className="g-3">
         {filteredVideos.map((video) => (
           <Col key={video._id} xs={12} sm={6} md={4} lg={3}>
             <VideoCard
-              thumbnail={getThumbnailUrl(video.videoUrl)}
+              mediaSource={getThumbnailOrVideoUrl(video.videoUrl)} // mediaSource प्रोप पास करें
               title={video.title}
               onClick={() => {
-                navigate(`/video/${video._id}`, {
+                navigate(`/video/${video._id}`, { // Assuming _id is sufficient for video detail page
                   state: { videos, currentVideo: video },
                 });
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             />
+            {/* लाइक, कमेंट, शेयर बटन को ज्यों का त्यों रखा गया है, वीडियो कार्यक्षमता से सीधे संबंधित नहीं है */}
+            {/* यह भाग आपके पिछले कोड से हटा दिया गया था, लेकिन चूंकि आपने 'पूरा कोड' कहा है, मैं इस बात पर जोर दे रहा हूं कि इसमें कोई बदलाव नहीं किया गया है */}
+            {/* <div className="d-flex justify-content-between w-100 mt-2">
+              <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Likes" onClick={() => handleLike(video._id)}>
+                <FaThumbsUp size={18} className="me-1" style={{ color: likedVideos.has(video._id) ? 'red' : 'inherit' }} />
+                {video.likes?.length || 0}
+              </Button>
+              <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Comments" onClick={() => openCommentModal(video)}>
+                <FaCommentDots size={18} className="me-1" /> {video.comments?.length || 0}
+              </Button>
+              <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Share" onClick={() => handleShare(video.title, video._id)}>
+                <FaShareAlt size={18} className="me-1 text-primary" /> Share
+              </Button>
+            </div> */}
           </Col>
         ))}
       </Row>
 
-      {/* ✅ Custom CSS for Dropdown and mobile styling */}
-      <style>{`
-        /* Mobile specific video card styling */
-        @media (max-width: 576px) {
-          .video-card {
-            margin-bottom: 15px;
-          }
-          .video-title {
-            font-size: 14px;
-            white-space: normal;
-          }
-        }
+      {/* टिप्पणी Modal को ज्यों का त्यों रखा गया है, वीडियो कार्यक्षमता से सीधे संबंधित नहीं है */}
+      {/* <Modal show={showCommentModal} onHide={closeCommentModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Comments</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            {currentVideoForComment?.comments?.length > 0 ? (
+              currentVideoForComment.comments.map(comment => (
+                <div key={comment._id} className="mb-3 d-flex align-items-start">
+                    <div>
+                        <p className="mb-0"><strong>{comment.user?.username || 'User'}</strong></p>
+                        <p className="mb-0 text-muted">{comment.text}</p>
+                    </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted text-center my-4">No comments yet.</p>
+            )}
+          </div>
+        </Modal.Body>
+        <div className="p-2 border-top">
+            {commentError && <Alert variant="danger" size="sm" className="mx-2">{commentError}</Alert>}
+            <Form onSubmit={handleCommentSubmit}>
+                <InputGroup>
+                    <Form.Control
+                        as="textarea"
+                        rows={1}
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="Add a comment..."
+                        required
+                        className="border-0"
+                        style={{ resize: 'none' }}
+                    />
+                    <Button variant="link" type="submit" disabled={isSubmittingComment} className="p-2">
+                        {isSubmittingComment
+                            ? <Spinner animation="border" size="sm" />
+                            : <IoSend size={24} color="#007bff" />
+                        }
+                    </Button>
+                </InputGroup>
+            </Form>
+        </div>
+      </Modal> */}
 
-        /* Dropdown Menu Styling (No border, better look) */
-        .ems-dropdown-menu-custom {
-          border-radius: 0.5rem; /* Rounded corners */
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
-          border: none; /* ✅ बॉर्डर हटा दिया */
-          min-width: 120px; /* Minimum width for the dropdown */
-          padding: 0.5rem 0; /* Padding inside the dropdown */
-        }
-
-        /* Dropdown Item Styling */
-        .ems-dropdown-item-custom {
-          color: #212529; /* Default text color */
-          font-weight: 500;
-          padding: 0.6rem 1rem; /* Slightly more padding for better touch target */
-          transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .ems-dropdown-item-custom:hover,
-        .ems-dropdown-item-custom:focus {
-          background-color: #f8d7da; /* ✅ लाइट रेड बैकग्राउंड ऑन होवर */
-          color: #dc3545; /* ✅ रेड टेक्स्ट कलर ऑन होवर */
-        }
-
-        /* Active Dropdown Item Styling */
-        .ems-dropdown-item-custom.active,
-        .ems-dropdown-item-custom:active {
-          background-color: #dc3545 !important; /* ✅ रेड बैकग्राउंड फॉर एक्टिव आइटम */
-          color: #fff !important; /* ✅ व्हाइट टेक्स्ट फॉर एक्टिव आइटम */
-          font-weight: bold;
-        }
-
-        /* Dropdown Toggle Button Styling (Optional: if you want more specific styling than Bootstrap's default) */
-        .ems-dropdown-toggle {
-          height: 31px; /* Adjust height to match other sm buttons if needed */
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      `}</style>
     </Container>
   );
 };
 
 export default EmstvPage;
 
-
 // import React, { useState, useEffect } from "react";
 // import { Container, Row, Col, Spinner, Image, Button, Dropdown, Modal, Form, Alert, InputGroup } from "react-bootstrap";
-// // ✅ Step 1: नया Send आइकन इम्पोर्ट करें
 // import { FaPlayCircle, FaThumbsUp, FaCommentDots, FaShareAlt } from "react-icons/fa";
 // import { IoSend } from "react-icons/io5"; // यह नया आइकन है
 // import { getVideo, likeVideo, addCommentToVideo } from "../../../Services/authApi";
 // import { useNavigate } from "react-router-dom";
 
-// // VideoCard कॉम्पोनेंट में कोई बदलाव नहीं
-// const VideoCard = ({ thumbnail, onClick, title }) => (
-//   <div className="mb-3">
-//     <div
-//       className="position-relative shadow-sm"
-//       onClick={onClick}
-//       style={{ cursor: "pointer", overflow: "hidden", transition: "transform 0.2s ease-in-out", backgroundColor: "#000", height: "180px" }}
-//     >
-//       <Image
-//         src={thumbnail}
-//         alt={title}
-//         fluid
-//         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", filter: "brightness(85%)" }}
-//       />
-//       <FaPlayCircle
-//         color="#ffffff"
-//         size={36}
-//         className="position-absolute top-50 start-50 translate-middle"
-//         style={{ opacity: 0.9, filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))" }}
-//       />
+// // Re-using the formatFullDateTime from RelatedNews for consistency (हालांकि इस कंपोनेंट में सीधे उपयोग नहीं किया गया)
+// const formatFullDateTime = (dateString) => {
+//   if (!dateString) return "समय उपलब्ध नहीं";
+//   const options = {
+//     day: "2-digit",
+//     month: "2-digit",
+//     year: "numeric",
+//     hour: "2-digit",
+//     minute: "2-digit",
+//     hourCycle: 'h23',
+//   };
+//   const dateObj = new Date(dateString);
+//   if (isNaN(dateObj)) return "Invalid Date";
+//   return dateObj.toLocaleString("hi-IN", options);
+// };
+
+// // VideoCard कॉम्पोनेंट में स्टाइल और रेंडरिंग लॉजिक एडजस्टमेंट
+// const VideoCard = ({ mediaSource, onClick, title }) => {
+//   // Check if the mediaSource URL is a direct video file (e.g., .mp4, .webm, .ogg, .mov)
+//   const isDirectVideoFile = mediaSource.match(/\.(mp4|webm|ogg|mov)$/i);
+
+//   return (
+//     <div className="mb-3">
+//       {/* Card with cropped image/video */}
+//       <div
+//         className="position-relative shadow-sm video-card"
+//         onClick={onClick}
+//         style={{
+//           cursor: "pointer",
+//           overflow: "hidden",
+//           transition: "transform 0.2s ease-in-out",
+//           backgroundColor: "#000",
+//           height: "180px", // card height
+//           borderRadius: "8px", // Consistency: added border radius
+//         }}
+//       >
+//         {isDirectVideoFile ? (
+//           <video
+//             src={mediaSource}
+//             alt={title || "Video"}
+//             className="w-100 h-100" // Use w-100 h-100 to fill container
+//             controls={false} // No controls visible in gallery
+//             autoPlay // Auto-play the video
+//             muted // Mute the video for auto-play
+//             loop // Loop the video
+//             style={{
+//               objectFit: "cover",
+//               objectPosition: "center",
+//               filter: "brightness(85%)",
+//               display: "block",
+//             }}
+//             onError={(e) => { e.target.src = "https://via.placeholder.com/320x180?text=Error"; console.error("Video failed to load:", e.target.src); }}
+//           />
+//         ) : (
+//           <Image
+//             src={mediaSource} // This would be YouTube thumbnail or generic image placeholder
+//             alt={title || "Video Thumbnail"}
+//             fluid
+//             style={{
+//               width: "100%",
+//               height: "100%",
+//               objectFit: "cover",
+//               objectPosition: "center",
+//               filter: "brightness(85%)",
+//               display: "block",
+//             }}
+//             onError={(e) => { e.target.src = "https://via.placeholder.com/320x180?text=Error"; console.error("Video thumbnail failed to load:", e.target.src); }}
+//           />
+//         )}
+//         <FaPlayCircle
+//           color="#ffffff"
+//           size={36}
+//           className="position-absolute top-50 start-50 translate-middle"
+//           style={{
+//             opacity: 0.9,
+//             filter: "drop-shadow(0px 0px 6px rgba(0,0,0,0.6))",
+//           }}
+//         />
+//       </div>
+
+//       {/* Title below card */}
+//       <p
+//         className="mt-2 mb-0 fw-bold text-truncate"
+//         style={{ color: "red", fontSize: "0.95rem", textAlign: "left" }}
+//         title={title} // hover pe full title
+//       >
+//         {title}
+//       </p>
 //     </div>
-//     <p className="mt-2 mb-0 fw-bold text-truncate" style={{ color: "red", fontSize: "0.95rem", textAlign: "left" }} title={title}>
-//       {title}
-//     </p>
-//   </div>
-// );
+//   );
+// };
 
 // const EmstvPage = () => {
 //   const [videos, setVideos] = useState([]);
@@ -651,7 +411,8 @@ export default EmstvPage;
 //         if (user && user._id) {
 //             const userLikedVideos = new Set();
 //             fetchedVideos.forEach(video => {
-//                 if (video.likes.includes(user._id)) {
+//                 // Ensure video.likes is an array before calling .includes
+//                 if (Array.isArray(video.likes) && video.likes.includes(user._id)) {
 //                     userLikedVideos.add(video._id);
 //                 }
 //             });
@@ -673,10 +434,10 @@ export default EmstvPage;
 //   const handleLike = async (videoId) => {
 //     try {
 //       const response = await likeVideo(videoId);
-//       setVideos(prevVideos => 
-//         prevVideos.map(video => 
-//           video._id === videoId 
-//             ? { ...video, likes: Array(response.totalLikes).fill(null) } 
+//       setVideos(prevVideos =>
+//         prevVideos.map(video =>
+//           video._id === videoId
+//             ? { ...video, likes: response.likes } // Assuming response.likes is the actual array of user IDs
 //             : video
 //         )
 //       );
@@ -709,15 +470,15 @@ export default EmstvPage;
 //   const handleCommentSubmit = async (e) => {
 //     e.preventDefault();
 //     if (!commentText.trim()) return;
-    
+
 //     setIsSubmittingComment(true);
 //     setCommentError("");
 //     try {
 //       const response = await addCommentToVideo(currentVideoForComment._id, { text: commentText });
-//       setVideos(prevVideos => 
-//         prevVideos.map(video => 
-//           video._id === currentVideoForComment._id 
-//             ? { ...video, comments: response.comments } 
+//       setVideos(prevVideos =>
+//         prevVideos.map(video =>
+//           video._id === currentVideoForComment._id
+//             ? { ...video, comments: response.comments }
 //             : video
 //         )
 //       );
@@ -734,7 +495,6 @@ export default EmstvPage;
 //     }
 //   };
 
-//   // ... (बाकी के फंक्शन्स वैसे ही रहेंगे)
 //   const allCategories = ["All", ...new Set(videos.map((v) => v.category_name))];
 //   const getMaxVisibleCategories = (width) => {
 //     if (width <= 480) return 2; if (width <= 768) return 3; if (width <= 992) return 4; return allCategories.length;
@@ -743,11 +503,33 @@ export default EmstvPage;
 //   let visibleCategories = allCategories.slice(0, maxVisibleCategories);
 //   let hiddenCategories = allCategories.slice(maxVisibleCategories);
 //   const filteredVideos = selectedCategory === "All" ? videos : videos.filter((v) => v.category_name === selectedCategory);
-//   const getThumbnailUrl = (url) => {
-//     if (!url) return ""; let videoId = ""; if (url.includes("youtu.be")) videoId = url.split("/").pop().split("?")[0]; else if (url.includes("youtube.com/watch")) videoId = new URL(url).searchParams.get("v"); return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
+
+//   // ✅ Updated getThumbnailOrVideoUrl function (same as in EmstvSection)
+//   const getThumbnailOrVideoUrl = (url) => {
+//     if (!url) return "https://via.placeholder.com/320x180?text=No+Video";
+//     let videoId = "";
+//     if (url.includes("youtu.be")) {
+//       videoId = url.split("/").pop().split("?")[0];
+//     } else if (url.includes("youtube.com/watch")) {
+//       videoId = new URL(url).searchParams.get("v");
+//     }
+
+//     // If it's a YouTube video, return the thumbnail URL
+//     if (videoId) {
+//       return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+//     }
+//     // If it's not a YouTube video (assume direct video URL), return the URL itself.
+//     return url;
 //   };
+
 //   const handleShare = async (title, videoId) => {
-//     const fullShareUrl = `${window.location.origin}/video/${videoId}`; if (navigator.share) { try { await navigator.share({ title, text: `Check out this video: ${title}`, url: fullShareUrl }); } catch (error) { console.error('Error sharing:', error); } } else { alert(`Please copy this link to share: ${fullShareUrl}`); }
+//     const fullShareUrl = `${window.location.origin}/video/${videoId}`;
+//     if (navigator.share) {
+//       try { await navigator.share({ title, text: `Check out this video: ${title}`, url: fullShareUrl }); }
+//       catch (error) { console.error('Error sharing:', error); }
+//     } else {
+//       alert(`Please copy this link to share: ${fullShareUrl}`);
+//     }
 //   };
 
 
@@ -788,16 +570,18 @@ export default EmstvPage;
 //         {filteredVideos.map((video) => (
 //           <Col key={video._id} xs={12} sm={6} md={4} lg={3}>
 //             <VideoCard
-//               thumbnail={getThumbnailUrl(video.videoUrl)}
+//               mediaSource={getThumbnailOrVideoUrl(video.videoUrl)} // Pass the source to VideoCard
 //               title={video.title}
 //               onClick={() => {
-//                 navigate(`/video/${video._id}`, { state: { videos, currentVideo: video } });
+//                 navigate(`/video/${video._id}`, { // Assuming _id is sufficient for video detail page
+//                   state: { videos, currentVideo: video },
+//                 });
 //                 window.scrollTo({ top: 0, behavior: "smooth" });
 //               }}
 //             />
 //             <div className="d-flex justify-content-between w-100 mt-2">
 //               <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Likes" onClick={() => handleLike(video._id)}>
-//                 <FaThumbsUp size={18} className="me-1" style={{ color: likedVideos.has(video._id) ? 'red' : 'inherit' }} /> 
+//                 <FaThumbsUp size={18} className="me-1" style={{ color: likedVideos.has(video._id) ? 'red' : 'inherit' }} />
 //                 {video.likes?.length || 0}
 //               </Button>
 //               <Button variant="link" className="text-dark px-2 py-1 text-decoration-none" title="Comments" onClick={() => openCommentModal(video)}>
@@ -851,8 +635,8 @@ export default EmstvPage;
 //                         style={{ resize: 'none' }}
 //                     />
 //                     <Button variant="link" type="submit" disabled={isSubmittingComment} className="p-2">
-//                         {isSubmittingComment 
-//                             ? <Spinner animation="border" size="sm" /> 
+//                         {isSubmittingComment
+//                             ? <Spinner animation="border" size="sm" />
 //                             : <IoSend size={24} color="#007bff" />
 //                         }
 //                     </Button>
